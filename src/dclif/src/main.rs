@@ -159,7 +159,7 @@ struct Opt {
     /// season_of_opulence, season_of_the_undying, season_of_dawn,
     /// season_of_the_worthy, season_of_arrivals, season_of_the_hunt,
     /// season_of_the_chosen, season_of_the_splicer, season_of_the_lost, season_of_the_risen,
-    /// witch_queen, season_of_the_haunted, season_of_the_plunder.
+    /// witch_queen, season_of_the_haunted, season_of_plunder, season_of_the_seraph.
     ///
     /// When custom is specified, the custom start date in RFC3339 format must
     /// be specified with the --custom-time argument.
@@ -186,7 +186,7 @@ struct Opt {
     /// season_of_opulence, season_of_the_undying, season_of_dawn,
     /// season_of_the_worthy, season_of_arrivals, season_of_the_hunt,
     /// season_of_the_chosen, season_of_the_splicer, season_of_the_lost, season_of_the_risen,
-    /// witch_queen, season_of_the_haunted, season_of_the_plunder.
+    /// witch_queen, season_of_the_haunted, season_of_plunder, season_of_the_seraph.
     ///
     /// When custom is specified, the custom start date in RFC3339 format must
     /// be specified with the --end-custom-time argument.
@@ -204,7 +204,8 @@ struct Opt {
     ///
     /// Addition values available are crimsom_doubles, supremacy, survival,
     /// countdown, all_doubles, doubles, private_clash, private_control,
-    /// private_survival, private_rumble, showdown, lockdown, iron_banner_rift, rift,
+    /// private_survival, private_rumble, showdown, lockdown, iron_banner_rift,
+    /// zone_control, iron_banner_zone_control, rift,
     /// scorched, scorched_team, breakthrough, clash_quickplay, trials_of_the_nine
     #[structopt(long = "mode", short = "M", 
         parse(try_from_str=parse_and_validate_crucible_mode), default_value = "all_pvp")]

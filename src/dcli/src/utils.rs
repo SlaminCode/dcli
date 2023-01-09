@@ -44,6 +44,9 @@ pub const DAY_IN_SECONDS: i64 = 86400;
 pub const TSV_EOL: &str = "\n";
 pub const TSV_DELIM: &str = "\t";
 
+pub const COMPETITIVE_PVP_ACTIVITY_HASH: u32 = 2754695317;
+pub const FREELANCE_COMPETITIVE_PVP_ACTIVITY_HASH: u32 = 2607135461;
+
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub fn f32_are_equal(a: f32, b: f32) -> bool {
@@ -85,7 +88,9 @@ pub fn format_error(msg: &str, error: Error) -> String {
 
     strings.push("\nIf you think you have hit a bug and would like to report it (or would just like some help):".to_string());
     strings.push("    1. Run command with '--verbose' flag.".to_string());
-    strings.push("    2. Copy output, and log a bug at: ".to_string());
+    strings.push("    2a. Copy output, and share on Discord: ".to_string());
+    strings.push("       https://discord.gg/2Y8bV2Mq3p".to_string());
+    strings.push("    2b. Copy output, and log a bug at: ".to_string());
     strings
         .push("       https://github.com/mikechambers/dcli/issues".to_string());
 
@@ -139,7 +144,7 @@ pub fn format_f32(val: f32, precision: usize) -> String {
 }
 
 pub fn repeat_str(s: &str, count: usize) -> String {
-    std::iter::repeat(s).take(count).collect::<String>()
+    s.repeat(count)
 }
 
 /// Clears screen. Works across platforms
@@ -178,8 +183,9 @@ pub fn human_date_format(start_time: &DateTime<Utc>) -> String {
 
 //this could use some more work and polish. Add "and" before the last item.
 pub fn human_duration(seconds: u32) -> String {
-    let dt =
-        Utc.ymd(0, 1, 1).and_hms(0, 0, 0) + Duration::seconds(seconds as i64);
+    //let dt = Utc.with_ymd_and_hms(0, 1, 1,0, 0, 0) + Duration::seconds(seconds as i64);
+    let dt = Utc.with_ymd_and_hms(0, 1, 1, 0, 0, 0).unwrap()
+        + Duration::seconds(seconds as i64);
     let year = build_time_str(dt.year(), "year");
     let mon = build_time_str(dt.month() as i32 - 1, "month");
     let day = build_time_str(dt.day() as i32 - 1, "day");
@@ -224,24 +230,27 @@ pub fn build_tsv(name_values: Vec<(&str, String)>) -> String {
 }
 
 pub fn get_destiny2_launch_date() -> DateTime<Utc> {
-    Utc.ymd(2017, 9, 6).and_hms(17, 0, 0)
+    Utc.with_ymd_and_hms(2017, 9, 6, 17, 0, 0).unwrap()
 }
 
 pub fn get_last_weekly_reset() -> DateTime<Utc> {
     //get a hardcoded past reset date / time (17:00 UTC every tuesday)
-    let past_reset: DateTime<Utc> = Utc.ymd(2020, 11, 10).and_hms(17, 0, 0);
+    let past_reset: DateTime<Utc> =
+        Utc.with_ymd_and_hms(2020, 11, 10, 17, 0, 0).unwrap();
     find_previous_moment(past_reset, WEEK_IN_SECONDS)
 }
 
 pub fn get_last_friday_reset() -> DateTime<Utc> {
     //get a hardcoded past reset date / time (17:00 UTC every friday)
-    let past_reset: DateTime<Utc> = Utc.ymd(2020, 12, 4).and_hms(17, 0, 0);
+    let past_reset: DateTime<Utc> =
+        Utc.with_ymd_and_hms(2020, 12, 4, 17, 0, 0).unwrap();
     find_previous_moment(past_reset, WEEK_IN_SECONDS)
 }
 
 pub fn get_last_daily_reset() -> DateTime<Utc> {
     //get a hardcoded past daily date / time (17:00 UTC every tuesday)
-    let past_reset: DateTime<Utc> = Utc.ymd(2020, 11, 10).and_hms(17, 0, 0);
+    let past_reset: DateTime<Utc> =
+        Utc.with_ymd_and_hms(2020, 11, 10, 17, 0, 0).unwrap();
 
     find_previous_moment(past_reset, DAY_IN_SECONDS)
 }

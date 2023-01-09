@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS "main"."version" (
     "version"   INTEGER NOT NULL UNIQUE
 );
 
-INSERT INTO "main"."version"("version") VALUES (9);
+INSERT INTO "main"."version"("version") VALUES (10);
 
 CREATE TABLE IF NOT EXISTS "main"."activity_queue" (
     "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS "main"."activity_queue" (
     "character"	INTEGER NOT NULL,
     UNIQUE("activity_id", "character"),
     FOREIGN KEY ("character")
-        REFERENCES character ("id")
+        REFERENCES character ("character_id")
         ON DELETE CASCADE
 );
 
@@ -40,34 +40,29 @@ CREATE TABLE IF NOT EXISTS "sync" (
     "last_sync"   TEXT NOT NULL,
     UNIQUE("member"),
     FOREIGN KEY ("member")
-        REFERENCES "member" ("id")
+        REFERENCES "member" ("member_id")
 );
 
 CREATE TABLE IF NOT EXISTS  "member" (
-    "id"            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    "member_id"	    TEXT NOT NULL,
+    "member_id"	    INTEGER PRIMARY KEY UNIQUE NOT NULL,
     "platform_id"	INTEGER NOT NULL,
     "display_name"  TEXT,
     "bungie_display_name"  TEXT,
-    "bungie_display_name_code"  TEXT,
-    UNIQUE("member_id")
+    "bungie_display_name_code"  TEXT
 );
 
 CREATE TABLE IF NOT EXISTS  "character" (
-    "id"	        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    "character_id"	TEXT NOT NULL,
+    "character_id"	INTEGER PRIMARY KEY UNIQUE NOT NULL,
     "member"	    INTEGER NOT NULL,
     "class"         INTEGER NOT NULL,
 
-    UNIQUE("character_id", "member"),
     FOREIGN KEY ("member")
-        REFERENCES "member" ("id")
+        REFERENCES "member" ("member_id")
         ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "main"."activity" (
-    "id"	        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    "activity_id"	INTEGER UNIQUE NOT NULL,
+    "activity_id"	INTEGER PRIMARY KEY UNIQUE NOT NULL,
     "period"        TEXT NOT NULL,
     "mode"          INTEGER NOT NULL,
     "platform"      INTEGER NOT NULL,
@@ -82,7 +77,7 @@ CREATE TABLE IF NOT EXISTS "main"."modes" (
     UNIQUE("mode", "activity"),
 
     FOREIGN KEY ("activity")
-        REFERENCES "activity" ("id")
+        REFERENCES "activity" ("activity_id")
         ON DELETE CASCADE
 );
 
@@ -96,7 +91,7 @@ CREATE TABLE IF NOT EXISTS "main"."team_result" (
     UNIQUE("team_id", "activity"),
 
     FOREIGN KEY ("activity")
-        REFERENCES "activity" ("id")
+        REFERENCES "activity" ("activity_id")
         ON DELETE CASCADE
 );
 
@@ -162,11 +157,11 @@ CREATE TABLE IF NOT EXISTS "main"."character_activity_stats" (
     UNIQUE("activity", "character"),
 
     FOREIGN KEY ("activity")
-        REFERENCES "activity" ("id")
+        REFERENCES "activity" ("activity_id")
         ON DELETE CASCADE,
 
     FOREIGN KEY ("character")
-        REFERENCES "character" ("id")
+        REFERENCES "character" ("character_id")
         ON DELETE CASCADE
 );
 

@@ -1,5 +1,33 @@
 # dcli Release Notes
 
+## v0.96.0 December 25, 2022
+
+-   Refactored database schema. This is major refactor that should make it easier to work with the data. It will require data to be re-synced.
+
+## v0.95.1 December 18, 2022
+
+-   Fix some issues, missing cases from v0.95.0 changes
+
+## v0.95.0 December 17, 2022
+
+-   Improved handling of missing character class data from API
+
+## v0.94.0 December 13, 2022
+
+-   Fix corrupted Rift matches (mode set to 0)
+
+## v0.93.0 December 13, 2022
+
+-   Added support for Iron Banner Zone Control (iron_banner_zone_control)
+-   Added code that attempts to fix missing / incorrect mode data for some matches returned from API. This includes Season of the Seraph comp match data, as well as data for private matches. In order to get fixed data, you will need to delete your data store and resync all data.
+
+## v0.91.0 December 6, 2022
+
+-   Update required Rust compiler version to 1.65.0 and updated libraries to most recent versions
+-   Changed SEASON_OF_THE_PLUNDER moment to SEASON_OF_PLUNDER (season_of_plunder)
+-   Fixed --verbose flag not working in dclisync
+-   Added support for Season of the Seraph
+
 ## v0.9.0 November 12, 2022
 
 -   Added a daemon mode to dclisync which continuously checks for updated data with a pause between syncs
@@ -29,7 +57,7 @@
 ## v0.8.6 August 23, 2022
 
 -   Added dclistat app to query specific stats.
--   Added new Moment for Season of the Plunder ("season_of_the_plunder").
+-   Added new Moment for Season of the Plunder ("season_of_plunder").
 -   Replaced --no-sync option in dcliad and dcliah with --sync, and no longer sync data by default.
 
 ## v0.8.5 August 7, 2022

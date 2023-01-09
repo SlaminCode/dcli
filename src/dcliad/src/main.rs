@@ -448,7 +448,7 @@ fn print_default(
         name_col_w = wep_col,
     );
 
-    let wep_divider = repeat_str(&"=", wep_header_str.chars().count());
+    let wep_divider = repeat_str("=", wep_header_str.chars().count());
     tell::update!("{}", wep_header_str);
     tell::update!("{}", wep_divider);
 
@@ -514,7 +514,8 @@ struct Opt {
     ///
     /// Addition values available are crimsom_doubles, supremacy, survival,
     /// countdown, all_doubles, doubles, private_clash, private_control,
-    /// private_survival, private_rumble, showdown, lockdown, iron_banner_rift, rift,
+    /// private_survival, private_rumble, showdown, lockdown, iron_banner_rift,
+    /// zone_control, iron_banner_zone_control, rift,
     /// scorched, scorched_team, breakthrough, clash_quickplay, trials_of_the_nine
     #[structopt(long = "mode", short = "M", 
         parse(try_from_str=parse_and_validate_mode), default_value = "all_pvp")]
@@ -546,12 +547,12 @@ struct Opt {
     #[structopt(long = "weapon-count", short = "w", default_value = "5")]
     weapon_count: u32,
 
-    /// The index of the activity to display data about
+    /// The activity id of the activity to display data about
     ///
     /// By default, the last activity will be displayed. The index can be retrieved
     /// from other dcli apps, such as dcliah, or directly from the sqlite datastore.
-    #[structopt(long = "activity-index", short = "a")]
-    activity_index: Option<u32>,
+    #[structopt(long = "activity-id", short = "a")]
+    activity_id: Option<i64>,
 
     /// Directory where Destiny 2 manifest and activity database files are stored. (optional)
     ///
@@ -641,8 +642,8 @@ async fn main() {
         };
     }
 
-    let data_result = match opt.activity_index {
-        Some(e) => store.retrieve_activity_by_index(e, &mut manifest).await,
+    let data_result = match opt.activity_id {
+        Some(e) => store.retrieve_activity(e, &mut manifest).await,
         None => {
             store
                 .retrieve_last_activity(

@@ -59,11 +59,11 @@ pub struct CrucibleActivity {
 impl CrucibleActivity {
     pub fn get_member_performance(
         &self,
-        member_id: &str,
+        member_id: &i64,
     ) -> Option<&CruciblePlayerPerformance> {
         for t in self.teams.values() {
             for p in &t.player_performances {
-                if p.player.member_id == member_id {
+                if &p.player.member_id == member_id {
                     return Some(p);
                 }
             }
@@ -141,8 +141,8 @@ pub struct ExtendedCrucibleStats {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Player {
-    pub member_id: String,
-    pub character_id: String,
+    pub member_id: i64,
+    pub character_id: i64,
     pub platform: Platform,
     pub name: PlayerName,
     pub light_level: i32,
@@ -161,7 +161,7 @@ impl Player {
 pub struct Member {
     pub name: PlayerName,
     pub platform: Platform,
-    pub id: String,
+    pub id: i64,
 }
 
 //TODO: might need to make the properties Options, or drop display_name
@@ -436,7 +436,7 @@ impl AggregateCruciblePerformances {
                     std::cmp::max(longest_win_streak, streak as u32);
             } else if streak < 0 {
                 longest_loss_streak =
-                    std::cmp::max(longest_loss_streak, streak.abs() as u32);
+                    std::cmp::max(longest_loss_streak, streak.unsigned_abs());
             }
 
             last_standing = p.stats.standing;
@@ -581,7 +581,6 @@ pub struct ExtendedCruciblePlayerActivityPerformances {
 
 #[derive(Debug, Clone)]
 pub struct ActivityDetail {
-    pub index_id: u32,
     pub id: i64,
     pub period: DateTime<Utc>,
     pub map_name: String,

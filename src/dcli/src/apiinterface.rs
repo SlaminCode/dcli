@@ -120,14 +120,15 @@ impl ApiInterface {
     /// Retrieves characters for specified member_id and platform
     pub async fn retrieve_current_activity(
         &self,
-        member_id: String,
+        member_id: i64,
         platform: Platform,
     ) -> Result<Option<CharacterActivitiesData>, Error> {
         let url = format!(
             "{base}/Platform/Destiny2/{platform_id}/Profile/{member_id}/?components=204",
             base = API_BASE_URL,
             platform_id = platform.as_id(),
-            member_id = utf8_percent_encode(&member_id, NON_ALPHANUMERIC)
+            //member_id = utf8_percent_encode(&member_id, NON_ALPHANUMERIC)
+            member_id = member_id
         );
 
         let profile: GetProfileResponse = self
@@ -279,16 +280,18 @@ impl ApiInterface {
         Ok(out)
     }
 
+    //todo: this could take a UserInfoCard. Might be more flexible as it though
     pub async fn retrieve_linked_profiles(
         &self,
-        member_id: &str,
+        member_id: &i64,
         platform: &Platform,
     ) -> Result<DestinyLinkedProfilesResponse, Error> {
         let url = format!(
             "{base}/Platform/Destiny2/{platform_id}/Profile/{member_id}/LinkedProfiles/",
             base = API_BASE_URL,
             platform_id = platform.as_id(),
-            member_id = utf8_percent_encode(&member_id, NON_ALPHANUMERIC)
+            member_id = member_id
+            //member_id = utf8_percent_encode(member_id, NON_ALPHANUMERIC)
         );
 
         let profile: LinkedProfilesResponse = self
@@ -312,12 +315,12 @@ impl ApiInterface {
 
     pub async fn retrieve_player_info_by_id(
         &self,
-        member_id: &str,
+        member_id: &i64,
     ) -> Result<UserMembershipData, Error> {
         let url = format!(
             "{base}/Platform/User/GetMembershipsById/{member_id}/-1/",
             base = API_BASE_URL,
-            member_id = utf8_percent_encode(&member_id, NON_ALPHANUMERIC)
+            member_id = member_id //member_id = utf8_percent_encode(member_id, NON_ALPHANUMERIC)
         );
 
         let profile: GetMembershipData = self
@@ -341,14 +344,15 @@ impl ApiInterface {
 
     pub async fn get_player_info(
         &self,
-        member_id: &str,
+        member_id: &i64,
         platform: &Platform,
     ) -> Result<PlayerInfo, Error> {
         let url = format!(
             "{base}/Platform/Destiny2/{platform_id}/Profile/{member_id}/?components=100,200",
             base = API_BASE_URL,
             platform_id = platform.as_id(),
-            member_id = utf8_percent_encode(&member_id, NON_ALPHANUMERIC)
+            member_id = member_id
+            //member_id = utf8_percent_encode(member_id, NON_ALPHANUMERIC)
         );
 
         let profile: GetProfileResponse = self
@@ -391,7 +395,7 @@ impl ApiInterface {
     /// Retrieves characters for specified member_id and platform
     pub async fn retrieve_characters(
         &self,
-        member_id: &str,
+        member_id: &i64,
         platform: &Platform,
     ) -> Result<Option<Characters>, Error> {
         let player_info = self.get_player_info(member_id, platform).await?;
@@ -435,18 +439,18 @@ impl ApiInterface {
 
     pub async fn retrieve_alltime_crucible_stats(
         &self,
-        member_id: &str,
-        character_id: &str,
+        member_id: &i64,
+        character_id: &i64,
         platform: &Platform,
         mode: &Mode,
     ) -> Result<Option<PvpStatsData>, Error> {
         //"/Platform/Destiny2/1/Account/$memberId/Character/$characterId/Stats/?modes=$modesString$dateRangeString&periodType=$periodTypeId&groups=1,2,3";
-        let url =
-        format!("{base}/Platform/Destiny2/{platform_id}/Account/{member_id}/Character/{character_id}/Stats/?modes={mode_id}&periodType=2&groups=1,2,3",
+        let url = format!("{base}/Platform/Destiny2/{platform_id}/Account/{member_id}/Character/{character_id}/Stats/?modes={mode_id}&periodType=2&groups=1,2,3",
             base=API_BASE_URL,
             platform_id = platform.as_id(),
-            member_id=utf8_percent_encode(&member_id, NON_ALPHANUMERIC),
-            character_id=utf8_percent_encode(&character_id, NON_ALPHANUMERIC),
+            //member_id=utf8_percent_encode(member_id, NON_ALPHANUMERIC),
+            member_id = member_id,
+            character_id = character_id, //character_id=utf8_percent_encode(character_id, NON_ALPHANUMERIC),
             mode_id = mode.as_id(),
         );
 
@@ -481,12 +485,11 @@ impl ApiInterface {
         let day_end = period.get_end().to_rfc3339();
 
         //
-        let url =
-        format!("{base}/Platform/Destiny2/{platform_id}/Account/{member_id}/Character/{character_id}/Stats/?modes={mode_id}&periodType=1&groups=1,2,3&daystart={day_start}&dayend={day_end}",
+        let url = format!("{base}/Platform/Destiny2/{platform_id}/Account/{member_id}/Character/{character_id}/Stats/?modes={mode_id}&periodType=1&groups=1,2,3&daystart={day_start}&dayend={day_end}",
             base=API_BASE_URL,
             platform_id = platform.as_id(),
-            member_id=utf8_percent_encode(&member_id, NON_ALPHANUMERIC),
-            character_id=utf8_percent_encode(&character_id, NON_ALPHANUMERIC),
+            member_id=utf8_percent_encode(member_id, NON_ALPHANUMERIC),
+            character_id = character_id, //character_id=utf8_percent_encode(character_id, NON_ALPHANUMERIC),
             mode_id = mode.as_id(),
             day_start = utf8_percent_encode(&day_start, NON_ALPHANUMERIC),
             day_end = utf8_percent_encode(&day_end, NON_ALPHANUMERIC),
@@ -513,8 +516,8 @@ impl ApiInterface {
 
     pub async fn retrieve_last_activity(
         &self,
-        member_id: &str,
-        character_id: &str,
+        member_id: &i64,
+        character_id: &i64,
         platform: &Platform,
         mode: &Mode,
     ) -> Result<Option<Activity>, Error> {
@@ -538,8 +541,8 @@ impl ApiInterface {
 
     pub async fn retrieve_activities_since(
         &self,
-        member_id: &str,
-        character_id: &str,
+        member_id: &i64,
+        character_id: &i64,
         platform: &Platform,
         mode: &Mode,
         start_time: &DateTime<Utc>,
@@ -614,8 +617,8 @@ impl ApiInterface {
 
     pub async fn retrieve_activities_since_id(
         &self,
-        member_id: &str,
-        character_id: &str,
+        member_id: &i64,
+        character_id: &i64,
         platform: &Platform,
         mode: &Mode,
         activity_id: i64,
@@ -623,8 +626,6 @@ impl ApiInterface {
         let mut out: Vec<Activity> = Vec::new();
         let mut page = 0;
         let count = MAX_ACTIVITIES_REQUEST_COUNT;
-
-        //tell::progress!("[");
 
         let spinner_style = ProgressStyle::with_template(
             "{prefix:.bold.dim} {spinner:.green} {wide_msg}",
@@ -720,20 +721,20 @@ impl ApiInterface {
 
     pub async fn retrieve_activities(
         &self,
-        member_id: &str,
-        character_id: &str,
+        member_id: &i64,
+        character_id: &i64,
         platform: &Platform,
         mode: &Mode,
         count: i32,
         page: i32,
     ) -> Result<Option<Vec<Activity>>, Error> {
         //
-        let url =
-        format!("{base}/Platform/Destiny2/{platform_id}/Account/{member_id}/Character/{character_id}/Stats/Activities/?mode={mode_id}&count={count}&page={page}",
+        let url = format!("{base}/Platform/Destiny2/{platform_id}/Account/{member_id}/Character/{character_id}/Stats/Activities/?mode={mode_id}&count={count}&page={page}",
             base=API_BASE_URL,
             platform_id = platform.as_id(),
-            member_id=utf8_percent_encode(&member_id, NON_ALPHANUMERIC),
-            character_id=utf8_percent_encode(&character_id, NON_ALPHANUMERIC),
+            //member_id=utf8_percent_encode(member_id, NON_ALPHANUMERIC),
+            member_id = member_id,
+            character_id = character_id, //character_id=utf8_percent_encode(character_id, NON_ALPHANUMERIC),
             mode_id = mode.as_id(),
             count=count,
             page=page,
