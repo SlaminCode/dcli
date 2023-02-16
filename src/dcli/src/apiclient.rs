@@ -32,7 +32,7 @@ use crate::response::drs::{
 };
 
 const DESTINY_API_KEY: &str = env!("DESTINY_API_KEY");
-const API_TIMEOUT: u64 = 10; //seconds
+const API_TIMEOUT: u64 = 150; //seconds
 
 //this makes sure that the env variable isnt set, but empty
 static_assertions::const_assert!(!DESTINY_API_KEY.is_empty());
