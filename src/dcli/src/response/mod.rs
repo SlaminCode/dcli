@@ -1,5 +1,5 @@
 /*
-* Copyright 2022 Mike Chambers
+* Copyright 2023 Mike Chambers
 * https://github.com/mikechambers/dcli
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,7 @@
 
 pub mod activities;
 pub mod character;
+pub mod cr;
 pub mod drs;
 pub mod ggms;
 pub mod gmd;

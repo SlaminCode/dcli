@@ -1,5 +1,5 @@
 /*
-* Copyright 2022 Mike Chambers
+* Copyright 2023 Mike Chambers
 * https://github.com/mikechambers/dcli
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -66,6 +66,7 @@ pub enum Error {
     ActivityNotFound,
     DateTimePeriodOrder,
     BungieNameNotFound,
+    NoProfilesFound,
     InvalidArgument { description: String },
 }
 
@@ -169,6 +170,9 @@ impl Display for Error {
             },
             Error::BungieNameNotFound  => {
                 write!(f, "Bungie name not found.")
+            },
+            Error::NoProfilesFound  => {
+                write!(f, "No player profiles found.")
             },
         }
     }

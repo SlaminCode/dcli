@@ -1,5 +1,5 @@
 /*
-* Copyright 2022 Mike Chambers
+* Copyright 2023 Mike Chambers
 * https://github.com/mikechambers/dcli
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,6 +46,19 @@ pub const TSV_DELIM: &str = "\t";
 
 pub const COMPETITIVE_PVP_ACTIVITY_HASH: u32 = 2754695317;
 pub const FREELANCE_COMPETITIVE_PVP_ACTIVITY_HASH: u32 = 2607135461;
+
+//pub const CHECKMATE_CONTROL_ACTIVITY_HASH: u32 = 3374318171;
+//480175362let my_array: [i32; 2] = [1, 2];
+pub const CHECKMATE_CONTROL_ACTIVITY_HASHES: [u32; 2] = [480175362, 2461220411];
+
+pub const CHECKMATE_CLASH_ACTIVITY_HASH: u32 = 1251966208;
+pub const CHECKMATE_COUNTDOWN_ACTIVITY_HASH: u32 = 2344293485;
+pub const CHECKMATE_RUMBLE_ACTIVITY_HASH: u32 = 2461220411;
+
+pub const IRON_BANNER_TRIBUTE_ACTIVITY_HASH: u32 = 2955009825;
+pub const IRON_BANNER_FORTRESS_ACTIVITY_HASH: u32 = 2888503916;
+
+pub const CHECKMATE_SURVIVAL_ACTIVITY_HASH: u32 = 3876264582;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 

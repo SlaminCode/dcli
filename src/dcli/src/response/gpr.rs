@@ -1,5 +1,5 @@
 /*
-* Copyright 2022 Mike Chambers
+* Copyright 2023 Mike Chambers
 * https://github.com/mikechambers/dcli
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,7 +49,7 @@ impl IsDestinyAPIResponse for GetProfileResponse {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProfileResponse {
-    pub characters: Option<CharacterDataFieldData>,
+    pub characters: Option<CharactersDataFieldData>,
 
     #[serde(rename = "characterActivities")]
     pub character_activities: Option<CharacterActivitiesFieldData>,
@@ -74,7 +74,7 @@ pub struct CharacterActivitiesDataField {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct CharacterDataFieldData {
+pub struct CharactersDataFieldData {
     pub data: HashMap<String, CharacterData>,
 }
 

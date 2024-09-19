@@ -1,5 +1,54 @@
 # dcli Release Notes
 
+## v0.99.8 January 26, 2024
+
+-   Fixed crash when adding player with no player profiles.
+
+## v0.99.7 January 26, 2024
+
+-   Added support for Iron Banner Fortress (iron_banner_fortress)
+
+## v0.99.6 December 5,2023
+
+-   Added support for Iron Banner Tribute (iron_banner_tribute)
+
+## v0.99.5 November 28,2023
+
+-   Added support for Countdown Competitive (countdown_competitive), Checkmate Rumble (checkmate_control), Checkmate Clash (checkmate_clash), Checkmate Countdown (checkmate_countdown)
+-   Added support for Season of the Wish (season_of_the_wish)
+
+## v0.99.4 September 22,2023
+
+-   Added support for Checkmate Survival (checkmate_survival), and Checkmate Control (checkmate_control)
+
+## v0.99.3 September 22,2023
+
+-   Added support for Checkmate All (checkmate_all), and Checkmate Control (checkmate_control)
+
+## v0.99.2 September 2, 2023
+
+-   Added support for Season of the Witch
+-   Added support for Relic mode
+-   Fixed bug where Season of the Deep had wrong date (was one day late)
+
+## v0.99.1 May 24, 2023
+
+-   Updating Mac build environment to macos-11.
+
+## v0.99.0 May 24, 2023
+
+-   Added support for Season of the Deep (season_of_the_deep) moment.
+
+## v0.98.0 March 3 2023
+
+-   Added support for Lightfall (lightfall), and Season of Definance (season_of_defiance) moments.
+
+## v0.97.0 January 20, 2023
+
+-   Removed some workaround for API bugs for Competitive and IronBanner (API was fixed). IronBanner matches now appear.
+-   Added support for RIFT_COMPETITIVE, SHOWDOWN_COMPETITIVE and SURVIVAL_COMPETITIVE modes. Before, you could only search for all competitive.
+    -Recommended that you delete data store and resync from scratch.
+
 ## v0.96.0 December 25, 2022
 
 -   Refactored database schema. This is major refactor that should make it easier to work with the data. It will require data to be re-synced.

@@ -20,33 +20,32 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#[derive(sqlx::FromRow, Debug)]
-pub struct PlayerActivitiesSummary {
-    pub total_activities: u32,
-    pub time_played_seconds: u32,
-    pub wins: u32,
-    pub completion_reason_mercy: u32,
-    pub completed: u32,
-    pub assists: u32,
-    pub kills: u32,
-    pub deaths: u32,
-    pub opponents_defeated: u32,
+use serde_derive::{Deserialize, Serialize};
 
-    pub grenade_kills: u32,
-    pub melee_kills: u32,
-    pub super_kills: u32,
-    pub ability_kills: u32,
-    pub precision: u32,
-    pub highest_assists: u32,
-    pub highest_kills: u32,
-    pub highest_deaths: u32,
-    pub highest_opponents_defeated: u32,
-    pub highest_grenade_kills: u32,
-    pub highest_melee_kills: u32,
-    pub highest_super_kills: u32,
-    pub highest_ability_kills: u32,
+use crate::response::character::CharacterData;
+use crate::response::drs::{DestinyResponseStatus, IsDestinyAPIResponse};
 
-    pub highest_kills_deaths_assists_ratio: f32,
-    pub highest_kills_deaths_ratio: f32,
-    pub highest_efficiency: f32,
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetCharacterResponse {
+    #[serde(rename = "Response")]
+    pub response: Option<CharacterResponse>, //should this be an option?
+
+    #[serde(flatten)]
+    pub status: DestinyResponseStatus,
+}
+
+impl IsDestinyAPIResponse for GetCharacterResponse {
+    fn get_status(&self) -> &DestinyResponseStatus {
+        &self.status
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CharacterResponse {
+    pub character: Option<CharacterDataFieldData>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CharacterDataFieldData {
+    pub data: Option<CharacterData>,
 }

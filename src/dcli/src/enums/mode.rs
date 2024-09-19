@@ -1,5 +1,5 @@
 /*
-* Copyright 2022 Mike Chambers
+* Copyright 2023 Mike Chambers
 * https://github.com/mikechambers/dcli
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -116,6 +116,23 @@ pub enum Mode {
     ZoneControl = 89,
     IronBannerRift = 90,
     IronBannerZoneControl = 91,
+    Relic = 92,
+
+    //Added by dcli
+    RiftCompetitive = 700,
+    ShowdownCompetitive = 701,
+    SurvivalCompetitive = 702,
+    CountdownCompetitive = 703,
+
+    CheckmateAll = 710,
+    CheckmateControl = 711,
+    CheckmateSurvival = 712,
+    CheckmateRumble = 713,
+    CheckmateClash = 714,
+    CheckmateCountdown = 715,
+
+    IronBannerTribute = 800,
+    IronBannerFortress = 801,
 }
 
 impl Mode {
@@ -205,6 +222,21 @@ impl Mode {
             89 => Ok(Mode::ZoneControl),
             90 => Ok(Mode::IronBannerRift),
             91 => Ok(Mode::IronBannerZoneControl),
+            92 => Ok(Mode::Relic),
+
+            700 => Ok(Mode::RiftCompetitive),
+            701 => Ok(Mode::ShowdownCompetitive),
+            702 => Ok(Mode::SurvivalCompetitive),
+            703 => Ok(Mode::CountdownCompetitive),
+
+            710 => Ok(Mode::CheckmateAll),
+            711 => Ok(Mode::CheckmateControl),
+            712 => Ok(Mode::CheckmateSurvival),
+            713 => Ok(Mode::CheckmateRumble),
+            714 => Ok(Mode::CheckmateClash),
+            715 => Ok(Mode::CheckmateCountdown),
+            800 => Ok(Mode::IronBannerTribute),
+            801 => Ok(Mode::IronBannerFortress),
 
             _ => Err(Error::UnknownEnumValue),
         }
@@ -276,6 +308,19 @@ impl Mode {
             || *self == Mode::ZoneControl
             || *self == Mode::IronBannerRift
             || *self == Mode::IronBannerZoneControl
+            || *self == Mode::RiftCompetitive
+            || *self == Mode::ShowdownCompetitive
+            || *self == Mode::SurvivalCompetitive
+            || *self == Mode::CountdownCompetitive
+            || *self == Mode::Relic
+            || *self == Mode::CheckmateAll
+            || *self == Mode::CheckmateControl
+            || *self == Mode::CheckmateSurvival
+            || *self == Mode::CheckmateRumble
+            || *self == Mode::CheckmateClash
+            || *self == Mode::CheckmateCountdown
+            || *self == Mode::IronBannerTribute
+            || *self == Mode::IronBannerFortress
     }
 
     pub fn is_private(&self) -> bool {
@@ -384,6 +429,20 @@ impl FromStr for Mode {
             "iron_banner_rift" => Ok(Mode::IronBannerRift),
             "zone_control" => Ok(Mode::ZoneControl),
             "iron_banner_zone_control" => Ok(Mode::IronBannerZoneControl),
+            "rift_competitive" => Ok(Mode::RiftCompetitive),
+            "showdown_competitive" => Ok(Mode::ShowdownCompetitive),
+            "survival_competitive" => Ok(Mode::SurvivalCompetitive),
+            "countdown_competitive" => Ok(Mode::CountdownCompetitive),
+            "relic" => Ok(Mode::Relic),
+
+            "checkmate_all" => Ok(Mode::CheckmateAll),
+            "checkmate_control" => Ok(Mode::CheckmateControl),
+            "checkmate_survival" => Ok(Mode::CheckmateSurvival),
+            "checkmate_rumble" => Ok(Mode::CheckmateRumble),
+            "checkmate_clash" => Ok(Mode::CheckmateClash),
+            "checkmate_countdown" => Ok(Mode::CheckmateCountdown),
+            "iron_banner_tribute" => Ok(Mode::IronBannerTribute),
+            "iron_banner_fortress" => Ok(Mode::IronBannerFortress),
 
             _ => Err("Unknown Mode type"),
         }
@@ -477,6 +536,20 @@ impl fmt::Display for Mode {
             Mode::ZoneControl => "Zone Control",
             Mode::IronBannerRift => "Iron Banner Rift",
             Mode::IronBannerZoneControl => "Iron Banner Zone Control",
+            Mode::RiftCompetitive => "Rift Competitive",
+            Mode::ShowdownCompetitive => "Showdown Competitive",
+            Mode::SurvivalCompetitive => "Survival Competitive",
+            Mode::CountdownCompetitive => "Countdown Competitive",
+            Mode::Relic => "Relic",
+
+            Mode::CheckmateAll => "All Checkmate",
+            Mode::CheckmateControl => "Checkmate Control",
+            Mode::CheckmateSurvival => "Checkmate Survival",
+            Mode::CheckmateRumble => "Checkmate Rumble",
+            Mode::CheckmateClash => "Checkmate Clash",
+            Mode::CheckmateCountdown => "Checkmate Countdown",
+            Mode::IronBannerTribute => "Iron Banner Tribute",
+            Mode::IronBannerFortress => "Iron Banner Fortress",
         };
 
         write!(f, "{}", out)

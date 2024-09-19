@@ -1,5 +1,5 @@
 /*
-* Copyright 2022 Mike Chambers
+* Copyright 2023 Mike Chambers
 * https://github.com/mikechambers/dcli
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,11 +27,13 @@ use tell::{Tell, TellLevel};
 use chrono::{DateTime, Utc};
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 
-use crate::enums::moment::Moment;
 use crate::playeractivitiessummary::PlayerActivitiesSummary;
 use crate::utils::{
-    format_error, COMPETITIVE_PVP_ACTIVITY_HASH,
-    FREELANCE_COMPETITIVE_PVP_ACTIVITY_HASH,
+    format_error, CHECKMATE_CLASH_ACTIVITY_HASH,
+    CHECKMATE_CONTROL_ACTIVITY_HASHES, CHECKMATE_COUNTDOWN_ACTIVITY_HASH,
+    CHECKMATE_RUMBLE_ACTIVITY_HASH, CHECKMATE_SURVIVAL_ACTIVITY_HASH,
+    COMPETITIVE_PVP_ACTIVITY_HASH, FREELANCE_COMPETITIVE_PVP_ACTIVITY_HASH,
+    IRON_BANNER_FORTRESS_ACTIVITY_HASH, IRON_BANNER_TRIBUTE_ACTIVITY_HASH,
 };
 use crate::{
     crucible::{CrucibleActivity, Member, PlayerName, Team},
@@ -466,8 +468,7 @@ impl ActivityStoreInterface {
 
         for c in characters.characters {
             let character_id = &c.id;
-            self.insert_character(&c.id, &c.class_type, &member.id)
-                .await?;
+            self.insert_character(&c.id, &c.class_type, &member).await?;
             tell::progress!("{}", format!("[{}]", c.class_type).to_uppercase());
 
             //these calls could be a little more general purpose by taking api ids and not db ids.
@@ -819,7 +820,26 @@ impl ActivityStoreInterface {
         }
     }
 
-    fn add_mode(
+    fn remove_from_modes(
+        &self,
+        activity: &mut DestinyPostGameCarnageReportData,
+        mode: Mode,
+    ) {
+        let o: Option<usize> = activity
+            .activity_details
+            .modes
+            .iter()
+            .position(|m| m == &mode);
+
+        if o.is_none() {
+            return;
+        }
+
+        let index: usize = o.unwrap();
+        activity.activity_details.modes.remove(index);
+    }
+
+    fn set_mode(
         &self,
         activity: &mut DestinyPostGameCarnageReportData,
         mode: Mode,
@@ -852,53 +872,53 @@ impl ActivityStoreInterface {
 
         match activity.activity_details.director_activity_hash {
             4242525388 | 559852413 => {
-                self.add_mode(activity, Mode::PrivateMatchesClash);
+                self.set_mode(activity, Mode::PrivateMatchesClash);
                 self.add_to_modes(activity, Mode::Clash);
             }
             1859507212 | 3959500077 => {
-                self.add_mode(activity, Mode::PrivateMatchesControl);
+                self.set_mode(activity, Mode::PrivateMatchesControl);
                 self.add_to_modes(activity, Mode::Control);
             }
             2491884566 | 3076038389 => {
-                self.add_mode(activity, Mode::PrivateMatchesRumble);
+                self.set_mode(activity, Mode::PrivateMatchesRumble);
                 self.add_to_modes(activity, Mode::Rumble);
             }
             29726492 | 1543557109 => {
-                self.add_mode(activity, Mode::PrivateMatchesMayhem);
+                self.set_mode(activity, Mode::PrivateMatchesMayhem);
                 self.add_to_modes(activity, Mode::AllMayhem);
             }
             2143799792 | 2903879783 => {
-                self.add_mode(activity, Mode::PrivateMatchesSurvival);
+                self.set_mode(activity, Mode::PrivateMatchesSurvival);
                 self.add_to_modes(activity, Mode::Survival);
             }
             2923123473 => {
-                self.add_mode(activity, Mode::Elimination);
+                self.set_mode(activity, Mode::Elimination);
             }
             3530889940 => {
-                self.add_mode(activity, Mode::Momentum);
+                self.set_mode(activity, Mode::Momentum);
             }
             84526555 => {
-                self.add_mode(activity, Mode::ScorchedTeam);
+                self.set_mode(activity, Mode::ScorchedTeam);
                 self.add_to_modes(activity, Mode::Scorched);
             }
             3344441646 => {
-                self.add_mode(activity, Mode::Scorched);
+                self.set_mode(activity, Mode::Scorched);
             }
             1887396202 => {
-                self.add_mode(activity, Mode::Showdown);
+                self.set_mode(activity, Mode::Showdown);
             }
             1978116819 => {
-                self.add_mode(activity, Mode::Rift);
+                self.set_mode(activity, Mode::Rift);
             }
             2404525917 => {
-                self.add_mode(activity, Mode::Breakthrough);
+                self.set_mode(activity, Mode::Breakthrough);
             }
             1218001922 => {
-                self.add_mode(activity, Mode::PrivateMatchesSupremacy);
+                self.set_mode(activity, Mode::PrivateMatchesSupremacy);
                 self.add_to_modes(activity, Mode::Supremacy);
             }
             3767360267 => {
-                self.add_mode(activity, Mode::PrivateMatchesCountdown);
+                self.set_mode(activity, Mode::PrivateMatchesCountdown);
                 self.add_to_modes(activity, Mode::Countdown);
             }
             _ => was_updated = false,
@@ -921,58 +941,116 @@ impl ActivityStoreInterface {
         if activity.activity_details.mode == Mode::None {
             match activity.activity_details.director_activity_hash {
                 2259621230 => {
-                    self.add_mode(activity, Mode::Rumble);
+                    self.set_mode(activity, Mode::Rumble);
                     was_updated = true;
                 }
                 903584917 | 3847433434 => {
-                    self.add_mode(activity, Mode::AllMayhem);
+                    self.set_mode(activity, Mode::AllMayhem);
                     was_updated = true;
                 }
                 1113451448 => {
-                    self.add_mode(activity, Mode::Rift);
+                    self.set_mode(activity, Mode::Rift);
                     was_updated = true;
                 }
                 _ => (),
             }
         }
 
-        if activity.activity_details.mode == Mode::PrivateMatchesAll {
-            was_updated = self.fix_private_match(activity);
+        //API doesn't include modes for competitive rift, showdown, survival, which
+        //makes it difficult to distinguish between comp and no comp modes
+        //We add these modes ourselves
+        if activity.activity_details.director_activity_hash
+            == COMPETITIVE_PVP_ACTIVITY_HASH
+            || activity.activity_details.director_activity_hash
+                == FREELANCE_COMPETITIVE_PVP_ACTIVITY_HASH
+        {
+            if activity.activity_details.mode == Mode::Rift {
+                self.set_mode(activity, Mode::RiftCompetitive);
+                self.add_to_modes(activity, Mode::RiftCompetitive);
+                was_updated = true;
+            }
+
+            if activity.activity_details.mode == Mode::Showdown {
+                self.set_mode(activity, Mode::ShowdownCompetitive);
+                self.add_to_modes(activity, Mode::ShowdownCompetitive);
+                was_updated = true;
+            }
+
+            if activity.activity_details.mode == Mode::Survival {
+                self.set_mode(activity, Mode::SurvivalCompetitive);
+                self.add_to_modes(activity, Mode::SurvivalCompetitive);
+                was_updated = true;
+            }
+
+            if activity.activity_details.mode == Mode::Countdown {
+                self.set_mode(activity, Mode::CountdownCompetitive);
+                self.add_to_modes(activity, Mode::PvPCompetitive);
+                was_updated = true;
+            }
         }
 
-        //comp fixes for Season of the Seraph
-        //todo: test if new data is still broken
-        if chrono::offset::Utc::now()
-            > Moment::SeasonOfTheSeraph.get_date_time()
+        if activity.activity_details.director_activity_hash
+            == IRON_BANNER_TRIBUTE_ACTIVITY_HASH
         {
-            if activity.activity_details.mode == Mode::None
-                && (activity.activity_details.director_activity_hash
-                    == COMPETITIVE_PVP_ACTIVITY_HASH
-                    || activity.activity_details.director_activity_hash
-                        == FREELANCE_COMPETITIVE_PVP_ACTIVITY_HASH)
-            {
-                //fix for https://github.com/Bungie-net/api/issues/1740
-                //We assume a competitive pvp activity with no mode is Rift
+            self.set_mode(activity, Mode::IronBannerTribute);
+            self.remove_from_modes(activity, Mode::IronBannerSupremacy);
+        }
 
-                //println!("found competitive pvp activity with mode None");
+        if activity.activity_details.director_activity_hash
+            == IRON_BANNER_FORTRESS_ACTIVITY_HASH
+        {
+            self.set_mode(activity, Mode::IronBannerFortress);
+            self.remove_from_modes(activity, Mode::IronBannerZoneControl);
+        }
 
-                self.add_to_modes(activity, Mode::PvPCompetitive);
-                self.add_mode(activity, Mode::Rift);
+        //add support for checkmate (adding modes)
 
-                was_updated = true;
-            } else if activity.activity_details.mode == Mode::Showdown {
-                //fix for https://github.com/Bungie-net/api/issues/1740
-                //println!("found activity with mode Showdown");
+        if CHECKMATE_CONTROL_ACTIVITY_HASHES
+            .contains(&activity.activity_details.director_activity_hash)
+        {
+            self.set_mode(activity, Mode::CheckmateControl);
 
-                if !activity
-                    .activity_details
-                    .modes
-                    .contains(&Mode::PvPCompetitive)
-                {
-                    activity.activity_details.modes.push(Mode::PvPCompetitive);
-                    was_updated = true;
-                }
-            }
+            self.add_to_modes(activity, Mode::CheckmateAll);
+
+            self.remove_from_modes(activity, Mode::PvPQuickplay);
+            self.remove_from_modes(activity, Mode::ControlQuickplay);
+        }
+
+        if activity.activity_details.director_activity_hash
+            == CHECKMATE_CLASH_ACTIVITY_HASH
+        {
+            self.set_mode(activity, Mode::CheckmateClash);
+            self.add_to_modes(activity, Mode::CheckmateAll);
+            self.remove_from_modes(activity, Mode::ClashQuickplay);
+            self.remove_from_modes(activity, Mode::PvPQuickplay);
+        }
+
+        if activity.activity_details.director_activity_hash
+            == CHECKMATE_COUNTDOWN_ACTIVITY_HASH
+        {
+            self.set_mode(activity, Mode::CheckmateCountdown);
+            self.add_to_modes(activity, Mode::CheckmateAll);
+            self.remove_from_modes(activity, Mode::PvPQuickplay);
+        }
+
+        if activity.activity_details.director_activity_hash
+            == CHECKMATE_RUMBLE_ACTIVITY_HASH
+        {
+            self.set_mode(activity, Mode::CheckmateRumble);
+            self.add_to_modes(activity, Mode::CheckmateAll);
+            self.remove_from_modes(activity, Mode::PvPQuickplay);
+        }
+
+        if activity.activity_details.director_activity_hash
+            == CHECKMATE_SURVIVAL_ACTIVITY_HASH
+        {
+            self.set_mode(activity, Mode::CheckmateSurvival);
+            self.add_to_modes(activity, Mode::CheckmateAll);
+            self.remove_from_modes(activity, Mode::PvPCompetitive);
+        }
+
+        if activity.activity_details.mode == Mode::PrivateMatchesAll {
+            was_updated = self.fix_private_match(activity);
         }
 
         was_updated
@@ -1050,7 +1128,7 @@ impl ActivityStoreInterface {
 
             let class_type = CharacterClass::from_hash(entry.player.class_hash);
 
-            self.insert_character(&entry.character_id, &class_type, &member.id)
+            self.insert_character(&entry.character_id, &class_type, &member)
                 .await?;
 
             self._insert_character_activity_stats(
@@ -1344,9 +1422,11 @@ impl ActivityStoreInterface {
         &mut self,
         character_id: &i64,
         class_type: &CharacterClass,
-        member_id: &i64,
+        member: &Member,
     ) -> Result<(), Error> {
         let mut stored_class_type = CharacterClass::Unknown;
+
+        let member_id = &member.id;
 
         //first, check if it exists and has valid data
         match sqlx::query(
@@ -1370,7 +1450,6 @@ impl ActivityStoreInterface {
         if stored_class_type != CharacterClass::Unknown {
             return Ok(());
         }
-        //didn't exists or had invalid data (from API), so lets insert
 
         sqlx::query(
             r#"

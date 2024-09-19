@@ -1,5 +1,5 @@
 /*
-* Copyright 2022 Mike Chambers
+* Copyright 2023 Mike Chambers
 * https://github.com/mikechambers/dcli
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -72,6 +72,11 @@ pub enum Moment {
     SeasonOfTheHaunted,
     SeasonOfPlunder,
     SeasonOfTheSeraph,
+    Lightfall,
+    SeasonOfDefiance,
+    SeasonOfTheDeep,
+    SeasonOfTheWitch,
+    SeasonOfTheWish,
 }
 
 impl Moment {
@@ -144,6 +149,7 @@ impl Moment {
             Moment::WitchQueen => {
                 Utc.with_ymd_and_hms(2022, 2, 22, 17, 0, 0).unwrap()
             }
+
             Moment::SeasonOfTheHaunted => {
                 Utc.with_ymd_and_hms(2022, 5, 24, 17, 0, 0).unwrap()
             }
@@ -154,6 +160,26 @@ impl Moment {
 
             Moment::SeasonOfTheSeraph => {
                 Utc.with_ymd_and_hms(2022, 12, 6, 17, 0, 0).unwrap()
+            }
+
+            Moment::Lightfall => {
+                Utc.with_ymd_and_hms(2023, 2, 28, 17, 0, 0).unwrap()
+            }
+
+            Moment::SeasonOfDefiance => {
+                Utc.with_ymd_and_hms(2023, 2, 28, 17, 0, 0).unwrap()
+            }
+
+            Moment::SeasonOfTheDeep => {
+                Utc.with_ymd_and_hms(2023, 5, 22, 17, 0, 0).unwrap()
+            }
+
+            Moment::SeasonOfTheWitch => {
+                Utc.with_ymd_and_hms(2023, 8, 22, 17, 0, 0).unwrap()
+            }
+
+            Moment::SeasonOfTheWish => {
+                Utc.with_ymd_and_hms(2023, 11, 28, 17, 0, 0).unwrap()
             }
         }
     }
@@ -204,6 +230,11 @@ impl FromStr for Moment {
             "season_of_the_haunted" => Ok(Moment::SeasonOfTheHaunted),
             "season_of_plunder" => Ok(Moment::SeasonOfPlunder),
             "season_of_the_seraph" => Ok(Moment::SeasonOfTheSeraph),
+            "lightfall" => Ok(Moment::Lightfall),
+            "season_of_defiance" => Ok(Moment::SeasonOfDefiance),
+            "season_of_the_deep" => Ok(Moment::SeasonOfTheDeep),
+            "season_of_the_witch" => Ok(Moment::SeasonOfTheWitch),
+            "season_of_the_wish" => Ok(Moment::SeasonOfTheWish),
 
             _ => Err("Unknown Moment type"),
         }
@@ -250,6 +281,11 @@ impl fmt::Display for Moment {
             Moment::SeasonOfTheHaunted => "Season of the Haunted",
             Moment::SeasonOfPlunder => "Season of Plunder",
             Moment::SeasonOfTheSeraph => "Season of the Seraph",
+            Moment::Lightfall => "Lightfall",
+            Moment::SeasonOfDefiance => "Season of Defiance",
+            Moment::SeasonOfTheDeep => "Season of the Deep",
+            Moment::SeasonOfTheWitch => "Season of the Witch",
+            Moment::SeasonOfTheWish => "Season of the Wish",
         };
 
         write!(f, "{}", out)
