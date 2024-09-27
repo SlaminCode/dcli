@@ -580,9 +580,8 @@ struct Opt {
     #[structopt(long = "name", short = "n", required = true)]
     name: PlayerName,
 
-    /// FIXME: shouldn't be required
-    #[structopt(long = "teammate", required = true)]
-    teammate: PlayerName,
+    #[structopt(long = "teammate")]
+    teammate: Option<PlayerName>,
 
     /// Custom start time in RFC 3339 date / time format
     ///
@@ -810,17 +809,22 @@ async fn main() {
         }
     };
 
-
-    let teammate: Member = match store.find_member(&opt.teammate, true).await {
-        Ok(e) => e,
-        Err(e) => {
-            tell::error!(
+    let mut teammate: Option<Member> = None;
+    if let Some(ref name) = opt.teammate {
+        teammate = match store
+            .find_member(name, true)
+            .await
+        {
+            Ok(e) => Some(e),
+            Err(e) => {
+                tell::error!(
                 "Could not find Bungie ID. Please check name and try again. {}",
                 e
             );
-            std::process::exit(EXIT_FAILURE);
-        }
-    };
+                std::process::exit(EXIT_FAILURE);
+            }
+        };
+    }
 
     if opt.sync {
         match store.sync_member(&member).await {
@@ -865,45 +869,58 @@ async fn main() {
         return;
     }
 
-    let data_teammate: Vec<CruciblePlayerActivityPerformance>;
-    if opt.teammate.is_valid_bungie_name() {
-        let data_local = match store
-            .retrieve_activities_since(
-                &teammate,
-                &CharacterClassSelection::All,
-                &opt.mode,
-                &time_period,
-                &mut manifest,
-            )
-        .await
-        {
-            Ok(e) => e,
-            Err(e) => {
-                tell::error!(
-                    "{}",
-                    format_error("Could not retrieve data from activity store.", e)
-                );
-                std::process::exit(EXIT_FAILURE);
+    let mut data_teammate: Vec<CruciblePlayerActivityPerformance> = vec![];
+    if let Some(ref teammate) = teammate {
+        if teammate.name.is_valid_bungie_name() {
+            let data_local = match store
+                .retrieve_activities_since(
+                    teammate,
+                    &CharacterClassSelection::All,
+                    &opt.mode,
+                    &time_period,
+                    &mut manifest,
+                )
+                .await
+            {
+                Ok(e) => e,
+                Err(e) => {
+                    tell::error!(
+                        "{}",
+                        format_error(
+                            "Could not retrieve data from activity store.",
+                            e
+                        )
+                    );
+                    std::process::exit(EXIT_FAILURE);
+                }
+            };
+
+            if data_local.is_none() {
+                tell::update!("No activities for teammate found");
+                return;
             }
-        };
+            data_teammate = data_local.unwrap();
 
-        if data_local.is_none() {
-            tell::update!("No activities for teammate found");
-            return;
+            if data_teammate.is_empty() {
+                tell::update!("No activities for teammate found");
+                return;
+            }
+
+            let player_match_ids: Vec<i64> = data
+                .clone()
+                .into_iter()
+                .map(|m| m.activity_detail.id)
+                .collect();
+            let teammate_match_ids: Vec<i64> = data_teammate
+                .clone()
+                .into_iter()
+                .map(|m| m.activity_detail.id)
+                .collect();
+
+            // filter for matches with teammates
+            data.retain(|m| teammate_match_ids.contains(&m.activity_detail.id));
+            data_teammate.retain(|m| player_match_ids.contains(&m.activity_detail.id));
         }
-        data_teammate = data_local.unwrap();
-
-        if data_teammate.is_empty() {
-            tell::update!("No activities for teammate found");
-            return;
-        }
-
-        let teammate_match_ids: Vec<i64> = data_teammate.into_iter().map(|m| m.activity_detail.id.clone()).collect();
-        // let player_match_ids: Vec<i64> = data.into_iter().map(|m| m.activity_detail.id.clone()).collect();
-
-        // TODO: filter for matches with teammate
-        data = data.into_iter().filter(|m| teammate_match_ids.contains(&&m.activity_detail.id)).collect();
-        // data_teammate = data_teammate.into_iter().filter(|m| player_match_ids.contains(&&m.activity_detail.id)).collect();
     }
 
     print_default(
@@ -919,17 +936,36 @@ async fn main() {
         &opt.medal_count,
         &opt.character_class_selection,
     );
-    // print_default(
-    //     &teammate,
-    //     &data_teammate,
-    //     &opt.activity_limit,
-    //     &opt.mode,
-    //     &time_period,
-    //     &opt.moment,
-    //     &opt.end_moment,
-    //     &opt.weapon_count,
-    //     &opt.weapon_sort,
-    //     &opt.medal_count,
-    //     &opt.character_class_selection,
-    // );
+
+    if let Some(teammate) = teammate {
+        print_default(
+            &teammate,
+            &data_teammate,
+            &opt.activity_limit,
+            &opt.mode,
+            &time_period,
+            &opt.moment,
+            &opt.end_moment,
+            &opt.weapon_count,
+            &opt.weapon_sort,
+            &opt.medal_count,
+            &opt.character_class_selection,
+        );
+
+        // Summarize
+        let mine: Vec<&CruciblePlayerPerformance> =
+            data.iter().map(|x| &x.performance).collect();
+        let aggregate_mine =
+            AggregateCruciblePerformances::with_performances(&mine);
+        let theirs: Vec<&CruciblePlayerPerformance> =
+            data_teammate.iter().map(|x| &x.performance).collect();
+        let aggregate_theirs =
+            AggregateCruciblePerformances::with_performances(&theirs);
+        println!(
+            "Differential KD: {:.2}  EFF: {:.2}",
+            aggregate_mine.kills_deaths_ratio
+                - aggregate_theirs.kills_deaths_ratio,
+            aggregate_mine.efficiency - aggregate_theirs.efficiency
+        );
+    }
 }
