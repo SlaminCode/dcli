@@ -45,7 +45,7 @@ use dcli::{
 };
 
 use dcli::enums::character::CharacterClassSelection;
-use dcli::enums::weaponsort::WeaponSort;
+use dcli::enums::weaponsort::{WeaponSort, parse_weapon_sort};
 
 use dcli::activitystoreinterface::ActivityStoreInterface;
 
@@ -686,7 +686,7 @@ struct Opt {
     ///
     /// Valid values include name, kills (default), games, kills_per_game_kills,
     /// precision_total, precision_percent, type, wins_percent
-    #[structopt(short = "W", long = "weapon-sort", default_value = "kills")]
+    #[structopt(short = "W", long = "weapon-sort", default_value = "kills", parse(try_from_str = parse_weapon_sort))]
     weapon_sort: WeaponSort,
 
     ///Print out additional information

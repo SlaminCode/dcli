@@ -35,25 +35,32 @@ pub enum WeaponSort {
     Type,
 }
 
+pub fn parse_weapon_sort(s: &str) -> Result<WeaponSort, String> {
+    //wrap in String so we can convert to lower case
+    let s = String::from(s).to_lowercase();
+
+    //get a slice to get a &str for the match
+    match &s[..] {
+        "name" => Ok(WeaponSort::Name),
+        "kills" => Ok(WeaponSort::Kills),
+        "games" => Ok(WeaponSort::Games),
+        "kills_per_game_kills" => Ok(WeaponSort::KillsPerGameKills),
+        "precision_total" => Ok(WeaponSort::PrecisionTotal),
+        "precision_percent" => Ok(WeaponSort::PrecisionPercent),
+        "wins_percent" => Ok(WeaponSort::WinPercent),
+        "type" => Ok(WeaponSort::Type),
+
+        _ => Err(format!("Unknown WeaponSort type '{}'", s)),
+    }
+}
+
 impl FromStr for WeaponSort {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        //wrap in String so we can convert to lower case
-        let s = String::from(s).to_lowercase();
-
-        //get a slice to get a &str for the match
-        match &s[..] {
-            "name" => Ok(WeaponSort::Name),
-            "kills" => Ok(WeaponSort::Kills),
-            "games" => Ok(WeaponSort::Games),
-            "kills_per_game_kills" => Ok(WeaponSort::KillsPerGameKills),
-            "precision_total" => Ok(WeaponSort::PrecisionTotal),
-            "precision_percent" => Ok(WeaponSort::PrecisionPercent),
-            "wins_percent" => Ok(WeaponSort::WinPercent),
-            "type" => Ok(WeaponSort::Type),
-
-            _ => Err("Unknown WeaponSort type"),
+        match parse_weapon_sort(s) {
+            Ok(m) => Ok(m),
+            Err(_) => Err("Unknown WeaponSort type")
         }
     }
 }
