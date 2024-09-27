@@ -217,9 +217,9 @@ fn print_default(
             }
 
             let platform = match p.player.platform {
-                dcli::enums::platform::Platform::Xbox => "Console",
-                dcli::enums::platform::Platform::Playstation => "Console",
-                dcli::enums::platform::Platform::Stadia => "Console",
+                dcli::enums::platform::Platform::Xbox => "XB",
+                dcli::enums::platform::Platform::Playstation => "PS",
+                dcli::enums::platform::Platform::Stadia => "ST",
                 _ => "PC",
             };
 
