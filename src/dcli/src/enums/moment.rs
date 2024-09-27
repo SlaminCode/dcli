@@ -124,52 +124,60 @@ impl Moment {
     }
 }
 
+pub fn parse_moment(s : &str) -> Result<Moment, String>
+{
+    //wrap in String so we can convert to lower case
+    let s = String::from(s).to_lowercase();
+
+    //get a slice to get a &str for the match
+    match &s[..] {
+        "now" => Ok(Moment::Now),
+        "daily" => Ok(Moment::Daily),
+        "next_daily" => Ok(Moment::NextDaily),
+        "weekend" => Ok(Moment::Weekend),
+        "next_weekend" => Ok(Moment::NextWeekend),
+        "weekly" => Ok(Moment::Weekly),
+        "next_weekly" => Ok(Moment::NextWeekly),
+        "day" => Ok(Moment::Day),
+        "next_day" => Ok(Moment::NextDay),
+        "week" => Ok(Moment::Week),
+        "next_week" => Ok(Moment::NextWeek),
+        "month" => Ok(Moment::Month),
+        "next_month" => Ok(Moment::NextMonth),
+        "all_time" => Ok(Moment::AllTime),
+        "custom" => Ok(Moment::Custom),
+
+        "launch" => Ok(Moment::Launch),
+        "curse_of_osiris" => Ok(Moment::CurseOfOsiris),
+        "warmind" => Ok(Moment::Warmind),
+        "season_of_the_outlaw" => Ok(Moment::SeasonOfTheOutlaw),
+        "season_of_the_forge" => Ok(Moment::SeasonOfTheForge),
+        "season_of_the_drifter" => Ok(Moment::SeasonOfTheDrifter),
+        "season_of_opulence" => Ok(Moment::SeasonOfOpulence),
+        "season_of_the_undying" => Ok(Moment::SeasonOfTheUndying),
+        "season_of_dawn" => Ok(Moment::SeasonOfDawn),
+        "season_of_the_worthy" => Ok(Moment::SeasonOfTheWorthy),
+        "season_of_arrivals" => Ok(Moment::SeasonOfArrivals),
+        "season_of_the_hunt" => Ok(Moment::SeasonOfTheHunt),
+        "season_of_the_chosen" => Ok(Moment::SeasonOfTheChosen),
+        "season_of_the_splicer" => Ok(Moment::SeasonOfTheSplicer),
+        "season_of_the_lost" => Ok(Moment::SeasonOfTheLost),
+        "season_of_the_risen" => Ok(Moment::SeasonOfTheRisen),
+        "witch_queen" => Ok(Moment::WitchQueen),
+        "season_of_the_haunted" => Ok(Moment::SeasonOfTheHaunted),
+        "season_of_the_plunder" => Ok(Moment::SeasonOfThePlunder),
+
+        _ => Err(format!("Unknown Moment type '{}'", s)),
+    }
+}
+
 impl FromStr for Moment {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        //wrap in String so we can convert to lower case
-        let s = String::from(s).to_lowercase();
-
-        //get a slice to get a &str for the match
-        match &s[..] {
-            "now" => Ok(Moment::Now),
-            "daily" => Ok(Moment::Daily),
-            "next_daily" => Ok(Moment::NextDaily),
-            "weekend" => Ok(Moment::Weekend),
-            "next_weekend" => Ok(Moment::NextWeekend),
-            "weekly" => Ok(Moment::Weekly),
-            "next_weekly" => Ok(Moment::NextWeekly),
-            "day" => Ok(Moment::Day),
-            "next_day" => Ok(Moment::NextDay),
-            "week" => Ok(Moment::Week),
-            "next_week" => Ok(Moment::NextWeek),
-            "month" => Ok(Moment::Month),
-            "next_month" => Ok(Moment::NextMonth),
-            "all_time" => Ok(Moment::AllTime),
-            "custom" => Ok(Moment::Custom),
-
-            "launch" => Ok(Moment::Launch),
-            "curse_of_osiris" => Ok(Moment::CurseOfOsiris),
-            "warmind" => Ok(Moment::Warmind),
-            "season_of_the_outlaw" => Ok(Moment::SeasonOfTheOutlaw),
-            "season_of_the_forge" => Ok(Moment::SeasonOfTheForge),
-            "season_of_the_drifter" => Ok(Moment::SeasonOfTheDrifter),
-            "season_of_opulence" => Ok(Moment::SeasonOfOpulence),
-            "season_of_the_undying" => Ok(Moment::SeasonOfTheUndying),
-            "season_of_dawn" => Ok(Moment::SeasonOfDawn),
-            "season_of_the_worthy" => Ok(Moment::SeasonOfTheWorthy),
-            "season_of_arrivals" => Ok(Moment::SeasonOfArrivals),
-            "season_of_the_hunt" => Ok(Moment::SeasonOfTheHunt),
-            "season_of_the_chosen" => Ok(Moment::SeasonOfTheChosen),
-            "season_of_the_splicer" => Ok(Moment::SeasonOfTheSplicer),
-            "season_of_the_lost" => Ok(Moment::SeasonOfTheLost),
-            "season_of_the_risen" => Ok(Moment::SeasonOfTheRisen),
-            "witch_queen" => Ok(Moment::WitchQueen),
-            "season_of_the_haunted" => Ok(Moment::SeasonOfTheHaunted),
-            "season_of_the_plunder" => Ok(Moment::SeasonOfThePlunder),
-
-            _ => Err("Unknown Moment type"),
+        match parse_moment(s) {
+            Ok(m) => Ok(m),
+            Err(_) => Err("Unknown Moment type")
         }
     }
 }

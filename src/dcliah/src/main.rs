@@ -28,7 +28,7 @@ use dcli::crucible::{Member, PlayerName};
 use dcli::enums::standing::Standing;
 use dcli::enums::{
     completionreason::CompletionReason,
-    moment::{DateTimePeriod, Moment},
+    moment::{DateTimePeriod, Moment, parse_moment},
 };
 use dcli::manifestinterface::ManifestInterface;
 use dcli::utils::{
@@ -618,7 +618,7 @@ struct Opt {
     ///
     /// For example:
     /// --moment custom --custom-time 2020-12-08T17:00:00.774187+00:00
-    #[structopt(long = "moment", short = "T", default_value = "week")]
+    #[structopt(long = "moment", short = "T", default_value = "week", parse(try_from_str = parse_moment))]
     moment: Moment,
 
     /// End moment from which to pull activities from
@@ -645,7 +645,7 @@ struct Opt {
     ///
     /// For example:
     /// --moment custom --end-custom-time 2020-12-08T17:00:00.774187+00:00
-    #[structopt(long = "end-moment", short = "E", default_value = "now")]
+    #[structopt(long = "end-moment", short = "E", default_value = "now", parse(try_from_str = parse_moment))]
     end_moment: Moment,
 
     /// Activity mode to return stats for
