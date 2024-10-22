@@ -77,6 +77,9 @@ pub enum Moment {
     SeasonOfTheDeep,
     SeasonOfTheWitch,
     SeasonOfTheWish,
+    FinalShape,
+    EpisodeEchoes,
+    EpisodeRevenant,
 }
 
 impl Moment {
@@ -181,6 +184,18 @@ impl Moment {
             Moment::SeasonOfTheWish => {
                 Utc.with_ymd_and_hms(2023, 11, 28, 17, 0, 0).unwrap()
             }
+
+            Moment::FinalShape => {
+                Utc.with_ymd_and_hms(2024, 6, 4, 17, 0, 0).unwrap()
+            }
+
+            Moment::EpisodeEchoes => {
+                Utc.with_ymd_and_hms(2024, 6, 11, 17, 0, 0).unwrap()
+            }
+
+            Moment::EpisodeRevenant => {
+                Utc.with_ymd_and_hms(2024, 10, 8, 17, 0, 0).unwrap()
+            }
         }
     }
 }
@@ -235,6 +250,9 @@ impl FromStr for Moment {
             "season_of_the_deep" => Ok(Moment::SeasonOfTheDeep),
             "season_of_the_witch" => Ok(Moment::SeasonOfTheWitch),
             "season_of_the_wish" => Ok(Moment::SeasonOfTheWish),
+            "final_shape" => Ok(Moment::FinalShape),
+            "episode_echoes" => Ok(Moment::EpisodeEchoes),
+            "episode_revenant" => Ok(Moment::EpisodeRevenant),
 
             _ => Err("Unknown Moment type"),
         }
@@ -286,6 +304,9 @@ impl fmt::Display for Moment {
             Moment::SeasonOfTheDeep => "Season of the Deep",
             Moment::SeasonOfTheWitch => "Season of the Witch",
             Moment::SeasonOfTheWish => "Season of the Wish",
+            Moment::FinalShape => "The Final Shape",
+            Moment::EpisodeEchoes => "Episode: Echoes",
+            Moment::EpisodeRevenant => "Episode: Revenent",
         };
 
         write!(f, "{}", out)
