@@ -23,6 +23,7 @@
 use chrono::{DateTime, Utc};
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::path::PathBuf;
 use tell::{Tell, TellLevel};
 
@@ -584,6 +585,9 @@ struct Opt {
     #[structopt(long = "teammate")]
     teammate: Vec<PlayerName>,
 
+    #[structopt(long = "opponent")]
+    opponent: Vec<PlayerName>,
+
     /// Custom start time in RFC 3339 date / time format
     ///
     /// Must be a valid date in the past.
@@ -826,6 +830,22 @@ async fn main() {
         }
     }
 
+    let mut opponents: Vec<Member> = vec![];
+    if !opt.opponent.is_empty() {
+        for name in &opt.opponent {
+            match store.find_member(name, true).await {
+                Ok(e) => opponents.push(e),
+                Err(e) => {
+                    tell::error!(
+                "Could not find Bungie ID. Please check name and try again. {}",
+                e
+            );
+                    std::process::exit(EXIT_FAILURE);
+                }
+            };
+        }
+    }
+
     if opt.sync {
         match store.sync_member(&member).await {
             Ok(_e) => (),
@@ -834,7 +854,7 @@ async fn main() {
                 tell::update!("Using existing data");
             }
         };
-        // TODO: sync teammate if requested
+        // TODO: sync other players if requested
     }
 
     let data = match store
@@ -858,30 +878,23 @@ async fn main() {
     };
 
     if data.is_none() {
-        tell::update!("No activities found");
+        no_member_activity(&member);
         return;
     }
 
     let mut data: Vec<CruciblePlayerActivityPerformance> = data.unwrap();
 
     if data.is_empty() {
-        tell::update!("No activities found");
+        no_member_activity(&member);
         return;
     }
-    let mut player_match_ids: Vec<i64> = data
-        .clone()
-        .into_iter()
-        .map(|m| m.activity_detail.id)
-        .collect();
 
     let mut teammate_data = HashMap::new();
-
-    let mut data_teammate: Vec<CruciblePlayerActivityPerformance>;
     for teammate in &teammates {
         if teammate.name.is_valid_bungie_name() {
             let data_local = match store
                 .retrieve_activities_since(
-                    &teammate,
+                    teammate,
                     &CharacterClassSelection::All,
                     &opt.mode,
                     &time_period,
@@ -903,31 +916,66 @@ async fn main() {
             };
 
             if data_local.is_none() {
-                tell::update!("No activities for teammate found");
+                no_member_activity(teammate);
                 return;
             }
-            data_teammate = data_local.unwrap();
+            let data_teammate = data_local.unwrap();
 
             if data_teammate.is_empty() {
-                tell::update!("No activities for teammate found");
+                no_member_activity(teammate);
                 return;
             }
-
-            let teammate_match_ids: Vec<i64> = data_teammate
-                .clone()
-                .into_iter()
-                .map(|m| m.activity_detail.id)
-                .collect();
-
-            // filter for matches with teammates
-            data.retain(|m| teammate_match_ids.contains(&m.activity_detail.id));
-            player_match_ids.retain(|m| teammate_match_ids.contains(m));
-
-            data_teammate
-                .retain(|m| player_match_ids.contains(&m.activity_detail.id));
 
             teammate_data.insert(teammate.clone(), data_teammate.clone());
         }
+    }
+
+    let mut opponent_data = HashMap::new();
+    for opponent in &opponents {
+        if opponent.name.is_valid_bungie_name() {
+            let data_local = match store
+                .retrieve_activities_since(
+                    opponent,
+                    &CharacterClassSelection::All,
+                    &opt.mode,
+                    &time_period,
+                    &mut manifest,
+                )
+                .await
+            {
+                Ok(e) => e,
+                Err(e) => {
+                    tell::error!(
+                        "{}",
+                        format_error(
+                            "Could not retrieve data from activity store.",
+                            e
+                        )
+                    );
+                    std::process::exit(EXIT_FAILURE);
+                }
+            };
+
+            if data_local.is_none() {
+                no_member_activity(opponent);
+                return;
+            }
+            let data_opponent = data_local.unwrap();
+
+            if data_opponent.is_empty() {
+                no_member_activity(opponent);
+                return;
+            }
+
+            opponent_data.insert(opponent.clone(), data_opponent.clone());
+        }
+    }
+
+    // filter for matches with teammates/opponents
+    common_matches(&mut data, &mut teammate_data, &mut opponent_data);
+    if data.is_empty() {
+        tell::update!("No activities matching specified criteria found");
+        return;
     }
 
     print_default(
@@ -949,10 +997,7 @@ async fn main() {
     let aggregate_mine =
         AggregateCruciblePerformances::with_performances(&mine);
 
-    // with list of final player match ids that contain all teammates filter each teammate list
-    for (teammate, mut data) in teammate_data {
-        data.retain(|m| player_match_ids.contains(&m.activity_detail.id));
-
+    for (teammate, data) in teammate_data {
         print_default(
             &teammate,
             &data,
@@ -976,5 +1021,84 @@ async fn main() {
                 - aggregate_theirs.kills_deaths_ratio,
             aggregate_mine.efficiency - aggregate_theirs.efficiency
         );
+    }
+}
+
+fn no_member_activity(member: &Member) {
+    tell::update!(
+        "No activities for {} found",
+        member.name.display_name.as_ref().unwrap()
+    );
+}
+
+fn intersect(sets: &[HashSet<i64>]) -> impl Iterator<Item = &i64> {
+    sets[0]
+        .iter()
+        .filter(move |c| sets[1..].iter().all(|s| s.contains(c)))
+}
+
+fn common_matches(
+    player: &mut Vec<CruciblePlayerActivityPerformance>,
+    teammates: &mut HashMap<Member, Vec<CruciblePlayerActivityPerformance>>,
+    opponents: &mut HashMap<Member, Vec<CruciblePlayerActivityPerformance>>,
+) {
+    let mut sets: Vec<HashSet<i64>> = vec![];
+
+    // set of all player activities so far
+    let player_activities = player
+        .clone()
+        .into_iter()
+        .map(|m| (m.activity_detail.id, m))
+        .collect::<HashMap<_, _>>();
+    sets.push(player_activities.keys().cloned().collect());
+
+    // sets of activites where specified teammates are on the same team
+    for data in (*teammates).values_mut() {
+        let mut set = HashSet::new();
+        data.retain(|m| {
+            if let Some(activity) = player_activities.get(&m.activity_detail.id)
+            {
+                if m.performance.stats.team == activity.performance.stats.team {
+                    set.insert(m.activity_detail.id);
+                    return true;
+                }
+            }
+            false
+        });
+        sets.push(set);
+    }
+
+    // sets of activites where specified opponents are not on the same team
+    for data in (*opponents).values_mut() {
+        let mut set = HashSet::new();
+        data.retain(|m| {
+            if let Some(activity) = player_activities.get(&m.activity_detail.id)
+            {
+                if m.performance.stats.team != activity.performance.stats.team {
+                    set.insert(m.activity_detail.id);
+                    return true;
+                }
+            }
+            false
+        });
+        sets.push(set);
+    }
+
+    // At this point we have the sets of matches that:
+    // - have player in them
+    // - teammate(s) are on same team
+    // - opponent(s) are on different team
+    // The intersection should provide the desired results
+    let common = intersect(&sets).collect::<Vec<_>>();
+
+    // Now filter out matches from data that don't match all the constraints
+    player.retain(|m| common.contains(&&m.activity_detail.id));
+
+    for data in (*teammates).values_mut() {
+        data.retain(|m| common.contains(&&m.activity_detail.id));
+    }
+
+    for data in (*opponents).values_mut() {
+        data.retain(|m| common.contains(&&m.activity_detail.id));
     }
 }
