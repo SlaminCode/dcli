@@ -89,7 +89,7 @@ OPTIONS:
 
             Addition values available are crimsom_doubles, supremacy, survival, countdown, all_doubles, doubles,
             private_clash, private_control, private_survival, private_rumble, showdown_competitive, survival_competitive, rift_competitive, showdown, lockdown, iron_banner_rift, zone_control, iron_banner_zone_control,
-            rift, scorched, scorched_team, breakthrough, clash_quickplay, trials_of_the_nine, relic, countdown_competitive, checkmate_all, checkmate_control, checkmate_rumble, checkmate_survival, checkmate_rumble, checkmate_clash, checkmate_countdown, iron_banner_tribute, iron_banner_fortress [default: all_pvp]
+            rift, scorched, scorched_team, breakthrough, clash_quickplay, trials_of_the_nine, relic, countdown_competitive, checkmate_all, checkmate_control, checkmate_rumble, checkmate_survival, checkmate_rumble, checkmate_clash, checkmate_countdown, collision_competitive, iron_banner_tribute, iron_banner_fortress [default: all_pvp]
     -T, --moment <moment>
             Start moment from which to pull activities from
 
