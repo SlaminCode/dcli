@@ -582,9 +582,11 @@ struct Opt {
     #[structopt(long = "name", short = "n", required = true)]
     name: PlayerName,
 
+    /// Bungie name for teammate in match
     #[structopt(long = "teammate")]
     teammate: Vec<PlayerName>,
 
+    /// Bungie name for opponent in match
     #[structopt(long = "opponent")]
     opponent: Vec<PlayerName>,
 
