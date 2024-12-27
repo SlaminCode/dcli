@@ -22,6 +22,7 @@
 
 use chrono::{DateTime, Utc};
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use tell::{Tell, TellLevel};
 
@@ -581,7 +582,7 @@ struct Opt {
     name: PlayerName,
 
     #[structopt(long = "teammate")]
-    teammate: Option<PlayerName>,
+    teammate: Vec<PlayerName>,
 
     /// Custom start time in RFC 3339 date / time format
     ///
@@ -809,21 +810,20 @@ async fn main() {
         }
     };
 
-    let mut teammate: Option<Member> = None;
-    if let Some(ref name) = opt.teammate {
-        teammate = match store
-            .find_member(name, true)
-            .await
-        {
-            Ok(e) => Some(e),
-            Err(e) => {
-                tell::error!(
+    let mut teammates: Vec<Member> = vec![];
+    if !opt.teammate.is_empty() {
+        for name in &opt.teammate {
+            match store.find_member(name, true).await {
+                Ok(e) => teammates.push(e),
+                Err(e) => {
+                    tell::error!(
                 "Could not find Bungie ID. Please check name and try again. {}",
                 e
             );
-                std::process::exit(EXIT_FAILURE);
-            }
-        };
+                    std::process::exit(EXIT_FAILURE);
+                }
+            };
+        }
     }
 
     if opt.sync {
@@ -868,13 +868,20 @@ async fn main() {
         tell::update!("No activities found");
         return;
     }
+    let mut player_match_ids: Vec<i64> = data
+        .clone()
+        .into_iter()
+        .map(|m| m.activity_detail.id)
+        .collect();
 
-    let mut data_teammate: Vec<CruciblePlayerActivityPerformance> = vec![];
-    if let Some(ref teammate) = teammate {
+    let mut teammate_data = HashMap::new();
+
+    let mut data_teammate: Vec<CruciblePlayerActivityPerformance>;
+    for teammate in &teammates {
         if teammate.name.is_valid_bungie_name() {
             let data_local = match store
                 .retrieve_activities_since(
-                    teammate,
+                    &teammate,
                     &CharacterClassSelection::All,
                     &opt.mode,
                     &time_period,
@@ -906,11 +913,6 @@ async fn main() {
                 return;
             }
 
-            let player_match_ids: Vec<i64> = data
-                .clone()
-                .into_iter()
-                .map(|m| m.activity_detail.id)
-                .collect();
             let teammate_match_ids: Vec<i64> = data_teammate
                 .clone()
                 .into_iter()
@@ -919,7 +921,12 @@ async fn main() {
 
             // filter for matches with teammates
             data.retain(|m| teammate_match_ids.contains(&m.activity_detail.id));
-            data_teammate.retain(|m| player_match_ids.contains(&m.activity_detail.id));
+            player_match_ids.retain(|m| teammate_match_ids.contains(m));
+
+            data_teammate
+                .retain(|m| player_match_ids.contains(&m.activity_detail.id));
+
+            teammate_data.insert(teammate.clone(), data_teammate.clone());
         }
     }
 
@@ -937,10 +944,18 @@ async fn main() {
         &opt.character_class_selection,
     );
 
-    if let Some(teammate) = teammate {
+    let mine: Vec<&CruciblePlayerPerformance> =
+        data.iter().map(|x| &x.performance).collect();
+    let aggregate_mine =
+        AggregateCruciblePerformances::with_performances(&mine);
+
+    // with list of final player match ids that contain all teammates filter each teammate list
+    for (teammate, mut data) in teammate_data {
+        data.retain(|m| player_match_ids.contains(&m.activity_detail.id));
+
         print_default(
             &teammate,
-            &data_teammate,
+            &data,
             &opt.activity_limit,
             &opt.mode,
             &time_period,
@@ -951,14 +966,8 @@ async fn main() {
             &opt.medal_count,
             &opt.character_class_selection,
         );
-
-        // Summarize
-        let mine: Vec<&CruciblePlayerPerformance> =
-            data.iter().map(|x| &x.performance).collect();
-        let aggregate_mine =
-            AggregateCruciblePerformances::with_performances(&mine);
         let theirs: Vec<&CruciblePlayerPerformance> =
-            data_teammate.iter().map(|x| &x.performance).collect();
+            data.iter().map(|x| &x.performance).collect();
         let aggregate_theirs =
             AggregateCruciblePerformances::with_performances(&theirs);
         println!(
