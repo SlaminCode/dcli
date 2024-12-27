@@ -339,7 +339,7 @@ impl Mode {
 }
 
 impl FromStr for Mode {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         //wrap in String so we can convert to lower case
@@ -449,7 +449,7 @@ impl FromStr for Mode {
             "iron_banner_tribute" => Ok(Mode::IronBannerTribute),
             "iron_banner_fortress" => Ok(Mode::IronBannerFortress),
 
-            _ => Err("Unknown Mode type"),
+            _ => Err(format!("Unknown Mode type '{}'", s)),
         }
     }
 }

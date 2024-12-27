@@ -72,7 +72,7 @@ impl Platform {
 }
 
 impl FromStr for Platform {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         //wrap in String so we can convert to lower case
@@ -86,7 +86,7 @@ impl FromStr for Platform {
             "stadia" => Ok(Platform::Stadia),
             "blizzard" => Ok(Platform::Blizzard),
             "epic" => Ok(Platform::Epic),
-            _ => Err("Unknown platform type"),
+            _ => Err(format!("Unknown platform type '{}'", s)),
         }
     }
 }

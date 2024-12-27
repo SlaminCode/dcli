@@ -41,7 +41,7 @@ impl CharacterClassSelection {
 }
 
 impl FromStr for CharacterClassSelection {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         //wrap in String so we can convert to lower case
@@ -54,7 +54,7 @@ impl FromStr for CharacterClassSelection {
             "warlock" => Ok(CharacterClassSelection::Warlock),
             "last_active" => Ok(CharacterClassSelection::LastActive),
             "all" => Ok(CharacterClassSelection::All),
-            _ => Err("Unknown CharacterClassSelection type"),
+            _ => Err(format!("Unknown CharacterClassSelection type '{}'", s)),
         }
     }
 }

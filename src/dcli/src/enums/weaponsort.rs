@@ -36,7 +36,7 @@ pub enum WeaponSort {
 }
 
 impl FromStr for WeaponSort {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         //wrap in String so we can convert to lower case
@@ -53,7 +53,7 @@ impl FromStr for WeaponSort {
             "wins_percent" => Ok(WeaponSort::WinPercent),
             "type" => Ok(WeaponSort::Type),
 
-            _ => Err("Unknown WeaponSort type"),
+            _ => Err(format!("Unknown WeaponSort type '{}'", s)),
         }
     }
 }

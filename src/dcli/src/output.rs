@@ -29,7 +29,7 @@ pub enum Output {
 }
 
 impl FromStr for Output {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         //wrap in String so we can convert to lower case
@@ -39,7 +39,7 @@ impl FromStr for Output {
         match &s[..] {
             "tsv" => Ok(Output::Tsv),
             "default" => Ok(Output::Default),
-            _ => Err("Unknown Output type"),
+            _ => Err(format!("Unknown Output type '{}'", s)),
         }
     }
 }
