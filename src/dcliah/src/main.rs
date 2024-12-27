@@ -743,7 +743,7 @@ async fn main() {
     tell::verbose!("{:#?}", opt);
     log::info!("{:#?}", opt);
 
-    let data_dir = match determine_data_dir(opt.data_dir) {
+    let data_dir = match determine_data_dir(opt.data_dir.clone()) {
         Ok(e) => e,
         Err(e) => {
             tell::error!(
@@ -777,19 +777,21 @@ async fn main() {
             }
         };
 
-    let mut store =
-        match ActivityStoreInterface::init_with_path(&data_dir, opt.api_key)
-            .await
-        {
-            Ok(e) => e,
-            Err(e) => {
-                tell::error!("{}", format_error(
+    let mut store = match ActivityStoreInterface::init_with_path(
+        &data_dir,
+        opt.api_key.clone(),
+    )
+    .await
+    {
+        Ok(e) => e,
+        Err(e) => {
+            tell::error!("{}", format_error(
                 "Could not initialize activity store. Have you run dclisync?",
                 e,
             ));
-                std::process::exit(EXIT_FAILURE);
-            }
-        };
+            std::process::exit(EXIT_FAILURE);
+        }
+    };
 
     let mut manifest = match ManifestInterface::new(&data_dir, false).await {
         Ok(e) => e,
@@ -980,12 +982,34 @@ async fn main() {
         return;
     }
 
+    print_player(&member, &data, &time_period, &opt, None);
+
+    let mine: Vec<&CruciblePlayerPerformance> =
+        data.iter().map(|x| &x.performance).collect();
+    let aggregate_mine =
+        AggregateCruciblePerformances::with_performances(&mine);
+
+    for (name, data) in teammate_data {
+        print_player(&name, &data, &time_period, &opt, Some(&aggregate_mine))
+    }
+    for (name, data) in opponent_data {
+        print_player(&name, &data, &time_period, &opt, Some(&aggregate_mine))
+    }
+}
+
+fn print_player(
+    name: &Member,
+    data: &[CruciblePlayerActivityPerformance],
+    time_period: &DateTimePeriod,
+    opt: &Opt,
+    aggregate_mine: Option<&AggregateCruciblePerformances>,
+) {
     print_default(
-        &member,
-        &data,
+        name,
+        data,
         &opt.activity_limit,
         &opt.mode,
-        &time_period,
+        time_period,
         &opt.moment,
         &opt.end_moment,
         &opt.weapon_count,
@@ -994,25 +1018,7 @@ async fn main() {
         &opt.character_class_selection,
     );
 
-    let mine: Vec<&CruciblePlayerPerformance> =
-        data.iter().map(|x| &x.performance).collect();
-    let aggregate_mine =
-        AggregateCruciblePerformances::with_performances(&mine);
-
-    for (teammate, data) in teammate_data {
-        print_default(
-            &teammate,
-            &data,
-            &opt.activity_limit,
-            &opt.mode,
-            &time_period,
-            &opt.moment,
-            &opt.end_moment,
-            &opt.weapon_count,
-            &opt.weapon_sort,
-            &opt.medal_count,
-            &opt.character_class_selection,
-        );
+    if let Some(aggregate_mine) = aggregate_mine {
         let theirs: Vec<&CruciblePlayerPerformance> =
             data.iter().map(|x| &x.performance).collect();
         let aggregate_theirs =
