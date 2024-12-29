@@ -509,7 +509,7 @@ fn print_default(
                 let b_gold = b.medal.is_gold();
 
                 if b_gold == a_gold {
-                    return b.count.cmp(&a.count);
+                    return a.count.cmp(&b.count);
                 }
 
                 if b_gold && !a_gold {
