@@ -22,6 +22,7 @@
 
 mod datetimeformat;
 
+use chrono::Local;
 use datetimeformat::DateTimeFormat;
 use dcli::enums::moment::Moment;
 use dcli::output::Output;
@@ -61,6 +62,10 @@ struct Opt {
     #[structopt(short = "f", long = "time-format", default_value = "rfc3339")]
     time_format: DateTimeFormat,
 
+    /// Print out time as local time
+    #[structopt(short = "l", long = "local")]
+    local: bool,
+
     /// Print out additional information
     #[structopt(short = "v", long = "verbose")]
     verbose: bool,
@@ -95,10 +100,19 @@ async fn main() {
     tell::verbose!("{:#?}", opt.verbose);
 
     let dt = opt.moment.get_date_time();
-    let date_time_str = match opt.time_format {
-        DateTimeFormat::RFC3339 => dt.to_rfc3339(),
-        DateTimeFormat::RFC2822 => dt.to_rfc2822(),
-        DateTimeFormat::Unix => dt.timestamp().to_string(),
+    let date_time_str = if opt.local {
+        let lt = dt.with_timezone(&Local);
+        match opt.time_format {
+            DateTimeFormat::RFC3339 => lt.to_rfc3339(),
+            DateTimeFormat::RFC2822 => lt.to_rfc2822(),
+            DateTimeFormat::Unix => lt.timestamp().to_string(),
+        }
+    } else {
+        match opt.time_format {
+            DateTimeFormat::RFC3339 => dt.to_rfc3339(),
+            DateTimeFormat::RFC2822 => dt.to_rfc2822(),
+            DateTimeFormat::Unix => dt.timestamp().to_string(),
+        }
     };
 
     match opt.output {
