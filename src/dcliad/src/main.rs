@@ -157,7 +157,7 @@ fn print_default(
     tell::update!("{}", standing_str);
     tell::update!("{} {}\n", generate_score(data), completion_reason);
 
-    let header = format!("{:<0name_col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}",
+    let header = format!("{:<0name_col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}",
     "PLAYER",
     "KILLS",
     "ASTS",
@@ -172,6 +172,7 @@ fn print_default(
     "MED",
     "RATING",
     "STATUS",
+    "LOBBY",
     col_w=col_w,
     name_col_w = name_col_w,
     );
@@ -215,8 +216,15 @@ fn print_default(
                 elo_str = format_f32(elo, 0);
             }
 
+            let platform = match p.player.platform {
+                dcli::enums::platform::Platform::Xbox => "XB",
+                dcli::enums::platform::Platform::Playstation => "PS",
+                dcli::enums::platform::Platform::Stadia => "ST",
+                _ => "PC",
+            };
+
             let extended = p.stats.extended.as_ref().unwrap();
-            tell::update!("{:<0name_col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}",
+            tell::update!("{:<0name_col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}{:>0col_w$}",
                 truncate_ascii_string(&p.player.name.get_bungie_name(), name_col_w),
                 p.stats.kills.to_string(),
                 p.stats.assists.to_string(),
@@ -231,6 +239,7 @@ fn print_default(
                 extended.all_medals_earned.to_string(),
                 elo_str,
                 p.stats.generate_status(),
+                platform,
                 col_w=col_w,
                 name_col_w = name_col_w,
             );
