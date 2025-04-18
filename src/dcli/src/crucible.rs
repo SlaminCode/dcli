@@ -250,13 +250,13 @@ impl PlayerName {
 }
 
 impl FromStr for PlayerName {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let name = PlayerName::from_bungie_name(s);
 
         if !name.is_valid_bungie_name() {
-            return Err("Invalid Bungie Name. Format: NAME#CODE");
+            return Err(format!("Invalid Bungie Name '{}'. Format: NAME#CODE", s));
         }
 
         Ok(name)

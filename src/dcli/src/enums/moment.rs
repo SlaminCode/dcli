@@ -186,7 +186,7 @@ impl Moment {
 }
 
 impl FromStr for Moment {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         //wrap in String so we can convert to lower case
@@ -236,7 +236,7 @@ impl FromStr for Moment {
             "season_of_the_witch" => Ok(Moment::SeasonOfTheWitch),
             "season_of_the_wish" => Ok(Moment::SeasonOfTheWish),
 
-            _ => Err("Unknown Moment type"),
+            _ => Err(format!("Unknown Moment type '{}'", s)),
         }
     }
 }

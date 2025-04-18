@@ -52,7 +52,7 @@ pub enum Stat {
 }
 
 impl FromStr for Stat {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         //wrap in String so we can convert to lower case
@@ -85,7 +85,7 @@ impl FromStr for Stat {
             "losses" => Ok(Stat::Losses),
             "mercies" => Ok(Stat::Mercies),
 
-            _ => Err("Unknown Stat type"),
+            _ => Err(format!("Unknown Stat type '{}'", s)),
         }
     }
 }

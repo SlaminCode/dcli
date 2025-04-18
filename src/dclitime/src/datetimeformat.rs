@@ -31,7 +31,7 @@ pub enum DateTimeFormat {
 }
 
 impl FromStr for DateTimeFormat {
-    type Err = &'static str;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         //wrap in String so we can convert to lower case
@@ -43,7 +43,7 @@ impl FromStr for DateTimeFormat {
             "rfc3339" => Ok(DateTimeFormat::RFC3339),
             "unix" => Ok(DateTimeFormat::Unix),
 
-            _ => Err("Unknown DateTimeFormat type"),
+            _ => Err(format!("Unknown DateTimeFormat type `{}`", s)),
         }
     }
 }
