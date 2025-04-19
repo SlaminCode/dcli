@@ -77,6 +77,9 @@ pub enum Moment {
     SeasonOfTheDeep,
     SeasonOfTheWitch,
     SeasonOfTheWish,
+    EpisodeEchoes,
+    EpisodeRevenant,
+    EpisodeHeresy,
 }
 
 impl Moment {
@@ -181,6 +184,15 @@ impl Moment {
             Moment::SeasonOfTheWish => {
                 Utc.with_ymd_and_hms(2023, 11, 28, 17, 0, 0).unwrap()
             }
+            Moment::EpisodeEchoes => {
+                Utc.with_ymd_and_hms(2024, 6, 4, 17, 0, 0).unwrap()
+            }
+            Moment::EpisodeRevenant => {
+                Utc.with_ymd_and_hms(2024, 10, 8, 17, 0, 0).unwrap()
+            }
+            Moment::EpisodeHeresy => {
+                Utc.with_ymd_and_hms(2025, 2, 10, 17, 0, 0).unwrap()
+            }
         }
     }
 }
@@ -235,6 +247,9 @@ impl FromStr for Moment {
             "season_of_the_deep" => Ok(Moment::SeasonOfTheDeep),
             "season_of_the_witch" => Ok(Moment::SeasonOfTheWitch),
             "season_of_the_wish" => Ok(Moment::SeasonOfTheWish),
+            "episode_echoes" => Ok(Moment::EpisodeEchoes),
+            "episode_revenant" => Ok(Moment::EpisodeRevenant),
+            "episode_heresy" => Ok(Moment::EpisodeHeresy),
 
             _ => Err(format!("Unknown Moment type '{}'", s)),
         }
@@ -286,6 +301,9 @@ impl fmt::Display for Moment {
             Moment::SeasonOfTheDeep => "Season of the Deep",
             Moment::SeasonOfTheWitch => "Season of the Witch",
             Moment::SeasonOfTheWish => "Season of the Wish",
+            Moment::EpisodeEchoes => "Episode 1: Echoes",
+            Moment::EpisodeRevenant => "Episode 2: Revenant",
+            Moment::EpisodeHeresy => "Episode 3: Heresy",
         };
 
         write!(f, "{}", out)
