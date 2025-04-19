@@ -105,7 +105,7 @@ impl fmt::Display for Stat {
             Stat::OpponentsDefeatedAvg => "Opponents defeated per game",
             Stat::AssistsAvg => "Assists per game",
 
-            Stat::KDMax => "Highest game kills deaths ration",
+            Stat::KDMax => "Highest game kills deaths ratio",
             Stat::EfficiencyMax => "Highest game efficiency",
             Stat::KDAMax => "Highest game kills deaths assists ratio",
             Stat::KillsMax => "Highest kills in a game",
