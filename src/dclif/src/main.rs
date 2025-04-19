@@ -159,7 +159,9 @@ struct Opt {
     /// season_of_opulence, season_of_the_undying, season_of_dawn,
     /// season_of_the_worthy, season_of_arrivals, season_of_the_hunt,
     /// season_of_the_chosen, season_of_the_splicer, season_of_the_lost, season_of_the_risen,
-    /// witch_queen, season_of_the_haunted, season_of_plunder, season_of_the_seraph, lightfall, season_of_defiance, season_of_the_deep, season_of_the_witch, season_of_the_wish.
+    /// witch_queen, season_of_the_haunted, season_of_plunder, season_of_the_seraph,
+    /// lightfall, season_of_defiance, season_of_the_deep, season_of_the_witch, season_of_the_wish,
+    /// episode_echoes, episode_revenant, episode_heresy.
     ///
     /// When custom is specified, the custom start date in RFC3339 format must
     /// be specified with the --custom-time argument.
@@ -186,7 +188,9 @@ struct Opt {
     /// season_of_opulence, season_of_the_undying, season_of_dawn,
     /// season_of_the_worthy, season_of_arrivals, season_of_the_hunt,
     /// season_of_the_chosen, season_of_the_splicer, season_of_the_lost, season_of_the_risen,
-    /// witch_queen, season_of_the_haunted, season_of_plunder, season_of_the_seraph, lightfall, season_of_defiance, season_of_the_deep, season_of_the_witch, season_of_the_wish.
+    /// witch_queen, season_of_the_haunted, season_of_plunder, season_of_the_seraph,
+    /// lightfall, season_of_defiance, season_of_the_deep, season_of_the_witch, season_of_the_wish,
+    /// episode_echoes, episode_revenant, episode_heresy.
     ///
     /// When custom is specified, the custom start date in RFC3339 format must
     /// be specified with the --end-custom-time argument.
