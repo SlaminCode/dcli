@@ -964,27 +964,25 @@ impl ActivityStoreInterface {
             || activity.activity_details.director_activity_hash
                 == FREELANCE_COMPETITIVE_PVP_ACTIVITY_HASH
         {
-
             /*
-            	out.activityDetails.addToModes(mode: Mode.competitive.rawValue);
-			
-			if out.activityDetails.mode == Mode.zoneControl.rawValue {
-				out.activityDetails.setMode(mode: Mode.competitiveCollision.rawValue)
-				
-				//fix generic activity hash set (competitive)
-				out.activityDetails.setDirectorActivityHash(hash: collisionActivityHash)
-			}
-			
-			if out.activityDetails.mode == Mode.clashQuickplay.rawValue {
-				out.activityDetails.removeFromModes(mode: Mode.clashQuickplay.rawValue)
-				out.activityDetails.removeFromModes(mode: Mode.quickplay.rawValue)
-				out.activityDetails.setMode(mode: Mode.competitiveClash.rawValue)
-				
-				//fix generic activity hash set (competitive)
-				out.activityDetails.setDirectorActivityHash(hash: clashActivityHash)
-			}
+                out.activityDetails.addToModes(mode: Mode.competitive.rawValue);
+
+            if out.activityDetails.mode == Mode.zoneControl.rawValue {
+                out.activityDetails.setMode(mode: Mode.competitiveCollision.rawValue)
+
+                //fix generic activity hash set (competitive)
+                out.activityDetails.setDirectorActivityHash(hash: collisionActivityHash)
+            }
+
+            if out.activityDetails.mode == Mode.clashQuickplay.rawValue {
+                out.activityDetails.removeFromModes(mode: Mode.clashQuickplay.rawValue)
+                out.activityDetails.removeFromModes(mode: Mode.quickplay.rawValue)
+                out.activityDetails.setMode(mode: Mode.competitiveClash.rawValue)
+
+                //fix generic activity hash set (competitive)
+                out.activityDetails.setDirectorActivityHash(hash: clashActivityHash)
+            }
              */
-            
 
             if activity.activity_details.mode == Mode::ZoneControl {
                 self.set_mode(activity, Mode::CollisionCompetitive);

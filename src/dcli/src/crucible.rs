@@ -256,7 +256,10 @@ impl FromStr for PlayerName {
         let name = PlayerName::from_bungie_name(s);
 
         if !name.is_valid_bungie_name() {
-            return Err(format!("Invalid Bungie Name '{}'. Format: NAME#CODE", s));
+            return Err(format!(
+                "Invalid Bungie Name '{}'. Format: NAME#CODE",
+                s
+            ));
         }
 
         Ok(name)

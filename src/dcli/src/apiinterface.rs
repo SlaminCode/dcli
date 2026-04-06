@@ -31,7 +31,6 @@ use chrono::{DateTime, Utc};
 use indicatif::{HumanCount, ProgressBar, ProgressStyle};
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 
-use crate::response::{gpr::{CharacterActivitiesData, GetProfileResponse}, cr::GetCharacterResponse};
 use crate::response::pgcr::{DestinyPostGameCarnageReportData, PGCRResponse};
 use crate::response::sdpr::{
     DestinyLinkedProfilesResponse, LinkedProfilesResponse,
@@ -46,6 +45,10 @@ use crate::response::{
     sdpr::SearchDestinyPlayerPostData,
 };
 use crate::response::{character::CharacterData, gmd::GetMembershipData};
+use crate::response::{
+    cr::GetCharacterResponse,
+    gpr::{CharacterActivitiesData, GetProfileResponse},
+};
 use crate::response::{
     ggms::{GetGroupMemberResponse, GroupMemberResponse},
     gmd::UserMembershipData,
@@ -348,26 +351,21 @@ impl ApiInterface {
 
     pub async fn retrieve_character(
         &self,
-        member:&Member,
+        member: &Member,
         character_id: &i64,
     ) -> Result<Option<CharacterData>, Error> {
-
         let url = format!(
             "{base}/Platform/Destiny2/{platform_id}/Profile/{member_id}/Character/{character_id}/?components=200",
-
-            
             base = API_BASE_URL,
             platform_id = member.platform.as_id(),
             member_id = member.id,
             character_id = character_id
         );
 
-        
-
         let profile: GetCharacterResponse = self
-        .client
-        .call_and_parse::<GetCharacterResponse>(&url)
-        .await?;
+            .client
+            .call_and_parse::<GetCharacterResponse>(&url)
+            .await?;
 
         let response = match profile.response {
             Some(e) => e,
@@ -380,10 +378,8 @@ impl ApiInterface {
             }
         };
 
-        
-
         if response.character.is_none() {
-            return Ok(None)
+            return Ok(None);
         }
 
         Ok(response.character.unwrap().data)
